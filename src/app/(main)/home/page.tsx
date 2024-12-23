@@ -1,6 +1,7 @@
 import React from "react";
 import Hero from "./Hero";
 import ByCategory from "./ByCategory";
+import LatestArrivals from "./LatestArrivals";
 // import Services from "./Services";
 
 const Landing = () => {
@@ -9,6 +10,7 @@ const Landing = () => {
       {/* Home */}
       <Hero />
       <ByCategory />
+      <LatestArrivals />
       {/* <Services /> */}
     </div>
   );

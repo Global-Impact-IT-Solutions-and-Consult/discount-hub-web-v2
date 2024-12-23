@@ -53,7 +53,7 @@ const Hero = () => {
   return (
     <>
       <div className="relative w-full h-[500px] overflow-hidden rounded-lg">
-        <span className="glass-fx absolute top-8 left-8 text-xs text-white z-10">
+        <span className="absolute top-8 left-8 text-xs text-white z-10">
           {products[currentSlide].category}
         </span>
         <div
@@ -68,6 +68,8 @@ const Hero = () => {
                 fill
                 className="object-cover"
               />
+              <div className="absolute inset-0 bg-black/30" />{" "}
+              {/* Dark overlay */}
             </div>
           ))}
         </div>
@@ -76,7 +78,7 @@ const Hero = () => {
             <h3 className="text-white text-2xl font-bold mb-4">
               {products[currentSlide].name}
             </h3>
-            <button className="group flex items-center gap-2 px-6 py-2 bg-gray-800/80 text-white rounded-full group">
+            <button className="group transition-fx flex items-center gap-2 px-6 py-2 bg-brand-main text-white rounded-md hover:bg-brand-main/70">
               Shop Product
               <svg
                 xmlns="http://www.w3.org/2000/svg"

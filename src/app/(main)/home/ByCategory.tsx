@@ -38,8 +38,8 @@ const ByCategory = () => {
     <>
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 flex items-center justify-between">
-          <span>Shop by category</span>
-          <span className="group flex items-center gap-2 px-4 py-2 bg-gray-800/80 text-white rounded-full group">
+          <span className="text-2xl font-bold">Shop by category</span>
+          <span className="transition-fx group flex items-center gap-2 px-4 py-2 bg-transparent cursor-pointer border-[0.3px] border-gray-800/80 text-brand-dark rounded-md hover:bg-brand-main hover:border-brand-main hover:text-white">
             View All
             <svg
               xmlns="http://www.w3.org/2000/svg"
