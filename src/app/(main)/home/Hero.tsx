@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import MainButton from "@/components/mainButton/page";
 
 // images
 import image1 from "@/assets/imgs/landing/hero/1.webp";
@@ -78,23 +79,10 @@ const Hero = () => {
             <h3 className="text-white text-2xl font-bold mb-4">
               {products[currentSlide].name}
             </h3>
-            <button className="group transition-fx flex items-center gap-2 px-6 py-2 bg-brand-main text-white rounded-md hover:bg-brand-main/70">
-              Shop Product
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="transition-fx w-4 h-4 group-hover:rotate-45"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
-                />
-              </svg>
-            </button>
+            <MainButton
+              text="Shop Product"
+              className="text-white bg-brand-main w-fit border-none hover:bg-brand-main/80"
+            />
           </div>
           <div className="hidden md:flex items-center gap-8">
             <div className="flex gap-2">
