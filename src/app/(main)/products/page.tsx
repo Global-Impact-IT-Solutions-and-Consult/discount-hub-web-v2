@@ -1,16 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DealCard from "@/components/dealCard/page";
 import Link from "next/link";
-import image1 from "@/assets/imgs/landing/latest-arrivals/1a.jpg";
-import image1a from "@/assets/imgs/landing/latest-arrivals/1.jpg";
-import image2 from "@/assets/imgs/landing/latest-arrivals/2a.jpg";
-import image2a from "@/assets/imgs/landing/latest-arrivals/2.jpg";
-import image3 from "@/assets/imgs/landing/latest-arrivals/3a.jpg";
-import image3a from "@/assets/imgs/landing/latest-arrivals/3.jpg";
-import image4 from "@/assets/imgs/landing/latest-arrivals/4a.jpg";
-import image4a from "@/assets/imgs/landing/latest-arrivals/4.jpg";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiFilter, FiX } from "react-icons/fi";
 import {
@@ -18,80 +10,143 @@ import {
   IoChevronForward,
   IoChevronBack,
 } from "react-icons/io5";
+import { useProducts, useCategories } from "@/hooks/useQueries";
+import AtomLoader from "@/components/loader/AtomLoader";
+import { formatPrice } from "@/utils/formatNumber";
+import { useSearchParams } from "next/navigation";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  store: string;
+  description: string;
+  images: string[];
+  discountPrice?: number;
+}
+
+interface Category {
+  category: {
+    name: string;
+  };
+  productCount: number;
+  productsInCategory: Product[];
+}
 
 const ProductsPage = () => {
+  const { data: products, isLoading } = useProducts();
+  const { data: allCategories = [] } = useCategories();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState("default");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [maxPrice, setMaxPrice] = useState(500);
+  const [priceRange, setPriceRange] = useState(500);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get("category");
+  const searchQuery = searchParams.get("search");
 
-  const products = [
-    {
-      image: image1.src,
-      imagea: image1a.src,
-      title: "PXN Gaming Controller X1",
-      description:
-        "Professional gaming controller with customizable buttons and RGB lighting lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
-      price: 79.99,
-      discountPrice: 59.99,
-    },
-    {
-      image: image2.src,
-      imagea: image2a.src,
-      title: "PXN Racing Wheel Pro",
-      description: "900° rotation racing wheel with force feedback and pedals",
-      price: 299.99,
-    },
-    {
-      image: image3.src,
-      imagea: image3a.src,
-      title: "PXN Flight Control Stick",
-      description:
-        "Premium flight stick with precise controls and multiple buttons",
-      price: 149.99,
-      discountPrice: 129.99,
-    },
-    {
-      image: image4.src,
-      imagea: image4a.src,
-      title: "PXN Controller Charging Dock",
-      description: "Dual charging station with LED indicators",
-      price: 29.99,
-    },
-    // Duplicating the same products to fill the grid
-    {
-      image: image1.src,
-      imagea: image1a.src,
-      title: "PXN Gaming Controller X1",
-      description:
-        "Professional gaming controller with customizable buttons and RGB lighting lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
-      price: 79.99,
-      discountPrice: 59.99,
-    },
-    {
-      image: image2.src,
-      imagea: image2a.src,
-      title: "PXN Racing Wheel Pro",
-      description: "900° rotation racing wheel with force feedback and pedals",
-      price: 299.99,
-    },
-    {
-      image: image3.src,
-      imagea: image3a.src,
-      title: "PXN Flight Control Stick",
-      description:
-        "Premium flight stick with precise controls and multiple buttons",
-      price: 149.99,
-      discountPrice: 129.99,
-    },
-    {
-      image: image4.src,
-      imagea: image4a.src,
-      title: "PXN Controller Charging Dock",
-      description: "Dual charging station with LED indicators",
-      price: 29.99,
-    },
-  ];
+  // Set initial category from URL
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setSelectedCategory(decodeURIComponent(categoryFromUrl));
+    }
+  }, [categoryFromUrl]);
+
+  // Find highest price and set initial products
+  useEffect(() => {
+    if (products) {
+      const highestPrice = Math.max(
+        ...products.map(
+          (product: Product) => product.discountPrice || product.price
+        )
+      );
+      const roundedMaxPrice = Math.ceil(highestPrice / 1000);
+      setMaxPrice(roundedMaxPrice);
+      setPriceRange(roundedMaxPrice);
+      setFilteredProducts(products);
+    }
+  }, [products]);
+
+  // Handle filtering when price range or category changes
+  useEffect(() => {
+    if (products) {
+      let filtered = [...products];
+
+      // Apply search filter if query exists
+      if (searchQuery) {
+        filtered = filtered.filter((product) =>
+          product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      // Apply category filter if selected
+      if (selectedCategory) {
+        const selectedCategoryData = allCategories.find(
+          (cat: Category) => cat.category.name === selectedCategory
+        );
+        if (selectedCategoryData) {
+          filtered = selectedCategoryData.productsInCategory;
+        }
+      }
+
+      // Apply price filter
+      filtered = filtered.filter(
+        (product) =>
+          (product.discountPrice || product.price) <= priceRange * 1000
+      );
+
+      setFilteredProducts(filtered);
+      setCurrentPage(1);
+    }
+  }, [priceRange, selectedCategory, products, allCategories, searchQuery]);
+
+  const productsPerPage = 32;
+
+  const handleCategorySelect = (category: Category) => {
+    setSelectedCategory(category.category.name);
+    setIsFilterOpen(false);
+  };
+
+  const sortedProducts = [...filteredProducts].sort(
+    (a: Product, b: Product) => {
+      switch (sortBy) {
+        case "price-low":
+          return (a.discountPrice || a.price) - (b.discountPrice || b.price);
+        case "price-high":
+          return (b.discountPrice || b.price) - (a.discountPrice || a.price);
+        case "name":
+          return a.name.localeCompare(b.name);
+        default:
+          return 0;
+      }
+    }
+  );
+
+  const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = sortedProducts.slice(startIndex, endIndex);
+
+  const pageNumbers = [];
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
+  if (isLoading) {
+    return <AtomLoader />;
+  }
 
   return (
     <div className="flex flex-col gap-4 sm:gap-8">
@@ -115,7 +170,8 @@ const ProductsPage = () => {
             <FiFilter className="w-5 h-5" />
           </button>
           <span className="text-gray-600 text-center sm:text-left w-full sm:w-auto">
-            Showing 1–{products.length} of {products.length} results
+            Showing {startIndex + 1}–{Math.min(endIndex, sortedProducts.length)}{" "}
+            of {sortedProducts.length} results
           </span>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
@@ -148,7 +204,7 @@ const ProductsPage = () => {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween" }}
-              className="fixed top-0 left-0 h-full w-[280px] sm:w-80 bg-white z-50 overflow-y-auto"
+              className="fixed top-0 left-0 h-full w-[280px] sm:w-80 bg-white z-50"
             >
               <span className="bg-brand-white w-full h-full flex flex-col justify-start items-start p-4 gap-12">
                 <motion.span
@@ -168,12 +224,14 @@ const ProductsPage = () => {
                       <input
                         type="range"
                         min="0"
-                        max="500"
+                        max={maxPrice}
+                        value={priceRange}
+                        onChange={(e) => setPriceRange(Number(e.target.value))}
                         className="w-full"
                       />
                       <div className="flex justify-between mt-4">
-                        <span>$0</span>
-                        <span>$500</span>
+                        <span>{formatPrice(0)}</span>
+                        <span>{formatPrice(priceRange * 1000)}</span>
                       </div>
                     </div>
                   </div>
@@ -201,25 +259,34 @@ const ProductsPage = () => {
                         collapsed: { height: 0, opacity: 0, marginTop: 0 },
                       }}
                       transition={{ duration: 0.3 }}
+                      style={{
+                        maxHeight: "calc(2.5rem * 14)",
+                        overflowY: "auto",
+                      }}
                       className="overflow-hidden"
                     >
-                      <div className="flex flex-col gap-6 pl-4 py-2">
-                        {[
-                          "Controllers",
-                          "Racing Wheels",
-                          "Flight Controls",
-                          "Accessories",
-                        ].map((category, index) => (
-                          <div
-                            key={index}
-                            className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
-                          >
-                            <span className="transition-fx text-xs text-brand-dark font-semibold group-hover:text-brand-grayish/65">
-                              {category}
-                            </span>
-                            <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
-                          </div>
-                        ))}
+                      <div className="flex flex-col gap-4 pl-4 py-2">
+                        {allCategories?.map(
+                          (category: Category, index: number) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, y: -20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                duration: 0.3,
+                                delay: index * 0.05,
+                              }}
+                              onClick={() => handleCategorySelect(category)}
+                              className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
+                            >
+                              <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
+                                {category.category.name} (
+                                {category.productCount})
+                              </span>
+                              <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
+                            </motion.div>
+                          )
+                        )}
                       </div>
                     </motion.div>
                   </div>
@@ -231,17 +298,17 @@ const ProductsPage = () => {
       </AnimatePresence>
 
       <div className="grid grid-cols-12 gap-4">
-        {products.map((product, index) => (
+        {currentProducts.map((product: Product, index: number) => (
           <div
-            key={index}
-            className="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3"
+            key={`product-${product.id}-${index}`}
+            className="col-span-12 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
           >
             <DealCard
-              image={product.image}
-              imagea={product.imagea}
-              title={product.title}
-              description={product.description}
-              price={product.price}
+              image={product.images?.[0] || ""}
+              imagea={product.images?.[1] || product.images?.[0] || ""}
+              title={product.name || "Untitled Product"}
+              description={product.store || "No store available"}
+              price={product.price || 0}
               discountPrice={product.discountPrice}
             />
           </div>
@@ -249,12 +316,16 @@ const ProductsPage = () => {
       </div>
 
       <div className="flex items-center justify-center gap-2 mt-8 text-sm font-bold">
-        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          disabled={currentPage === 1}
+        >
           <IoChevronBack className="w-5 h-5" />
         </button>
-        {[1, 2, 3, 4, 5].map((page) => (
+        {pageNumbers.map((page) => (
           <button
-            key={page}
+            key={`page-${page}`}
             onClick={() => setCurrentPage(page)}
             className={`px-4 py-2 rounded-lg transition-colors ${
               currentPage === page
@@ -265,7 +336,13 @@ const ProductsPage = () => {
             {page}
           </button>
         ))}
-        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+          }
+          disabled={currentPage === totalPages}
+        >
           <IoChevronForward className="w-5 h-5" />
         </button>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 // import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 // import logo from "@/assets/imgs/logo.png";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import Sidebar from "../sidebar/page";
@@ -9,14 +9,51 @@ import { BiSearch, BiSolidDiscount } from "react-icons/bi";
 import { CgShoppingCart } from "react-icons/cg";
 import Link from "next/link";
 import { IoChevronDown } from "react-icons/io5";
+import { useCategories, useProducts } from "@/hooks/useQueries";
+import AtomLoader from "@/components/loader/AtomLoader";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import defaultImage from "@/assets/imgs/landing/latest-arrivals/1a.jpg";
+import { formatPrice } from "@/utils/formatNumber";
+import { AnimatePresence } from "framer-motion";
+
+interface Category {
+  category: {
+    name: string;
+  };
+}
+
+interface SearchProduct {
+  id?: string;
+  name: string;
+  price: number;
+  discountPrice?: number;
+  images?: string[];
+}
 
 const Header = () => {
   const [isHidden, setIsHidden] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const { data: allCategories = [], isLoading } = useCategories();
   const { scrollY } = useScroll();
   const lastYRef = useRef(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchProduct[]>([]);
+  const { data: products = [] } = useProducts();
+  const router = useRouter();
+  const searchInputRef = useRef<HTMLDivElement>(null);
+
+  // Reset showAllCategories when dropdown closes
+  const handleDropdownClose = (e: React.MouseEvent<HTMLDivElement>) => {
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    if (!e.currentTarget.contains(relatedTarget)) {
+      setIsOpen(false);
+      setShowAllCategories(false);
+    }
+  };
 
   useMotionValueEvent(scrollY, "change", (y) => {
     const difference = y - lastYRef.current;
@@ -26,6 +63,84 @@ const Header = () => {
       lastYRef.current = y;
     }
   });
+
+  // Replace empty categories with loader while loading
+  const categoriesContent = isLoading ? (
+    <AtomLoader />
+  ) : (
+    <>
+      {allCategories?.slice(0, 5).map((category: Category, index: number) => (
+        <div
+          key={index}
+          className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
+        >
+          {category.category.name}
+        </div>
+      ))}
+      {!showAllCategories && allCategories?.length > 5 && (
+        <button
+          onClick={() => setShowAllCategories(true)}
+          className="transition-fx text-brand-main px-4 py-2 text-sm font-semibold text-left hover:text-brand-main/80"
+        >
+          All Categories
+        </button>
+      )}
+      {showAllCategories && (
+        <div className="max-h-[400px] overflow-y-auto">
+          {allCategories?.slice(5).map((category: Category, index: number) => (
+            <div
+              key={index + 5}
+              className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
+            >
+              {category.category.name}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
+  // Handle search input
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      const filtered = products
+        .filter((product: any) =>
+          product.name.toLowerCase().includes(query.toLowerCase())
+        )
+        .slice(0, 5);
+      setSearchResults(filtered);
+      setShowSearch(true);
+    } else {
+      setSearchResults([]);
+      setShowSearch(false);
+    }
+  };
+
+  // Handle "See all products" click
+  const handleSeeAll = () => {
+    router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+    setShowSearch(false);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
+  // Add click outside handler for search
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node)
+      ) {
+        setShowSearch(false);
+        setSearchQuery("");
+        setSearchResults([]);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -70,13 +185,7 @@ const Header = () => {
             <div
               className="relative"
               onMouseEnter={() => setIsOpen(true)}
-              onMouseLeave={(e) => {
-                // Check if we're not hovering over the dropdown
-                const relatedTarget = e.relatedTarget as HTMLElement;
-                if (!e.currentTarget.contains(relatedTarget)) {
-                  setIsOpen(false);
-                }
-              }}
+              onMouseLeave={handleDropdownClose}
             >
               <motion.div className="hidden items-center text-xs font-semibold gap-2 cursor-pointer lg:flex group">
                 <span className="hidden text-brand-dark text-xs font-semibold lg:block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 group-hover:after:w-full">
@@ -96,24 +205,17 @@ const Header = () => {
                 transition={{ duration: 0.3 }}
                 className="absolute top-full mt-2 left-0 w-48 bg-white shadow-lg rounded-md overflow-hidden border-2 border-gray-200"
               >
-                <div className="flex flex-col py-2">
-                  <div className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65">
-                    Category 1
-                  </div>
-                  <div className="px-4 py-2 text-sm hover:text-brand-grayish/65 cursor-pointer border-b-2 border-gray-200">
-                    Category 2
-                  </div>
-                  <div className="px-4 py-2 text-sm hover:text-brand-grayish/65 cursor-pointer">
-                    Category 3
-                  </div>
-                </div>
+                <div className="flex flex-col py-2">{categoriesContent}</div>
               </motion.div>
             </div>
-            <div className="hidden items-center text-xs font-semibold gap-2 cursor-pointer lg:flex group">
+            <Link
+              href="/products"
+              className="hidden items-center text-xs font-semibold gap-2 cursor-pointer lg:flex group"
+            >
               <span className="hidden text-brand-dark text-xs font-semibold lg:block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 group-hover:after:w-full">
                 All Products
               </span>
-            </div>
+            </Link>
           </div>
           <Link href="/" className="flex items-center gap-2 cursor-pointer">
             <BiSolidDiscount className="text-brand-main text-2xl" />
@@ -122,48 +224,88 @@ const Header = () => {
             </span>
           </Link>
           <div className="flex items-center gap-4 mr-4 lg:mr-0">
-            <div
-              className="group flex items-center gap-2 cursor-pointer relative"
-              onClick={() => setShowSearch(!showSearch)}
-              onBlur={(e) => {
-                const relatedTarget = e.relatedTarget as HTMLElement;
-                if (!e.currentTarget.contains(relatedTarget)) {
-                  setShowSearch(false);
-                }
-              }}
-              tabIndex={0}
-            >
-              <BiSearch className="transition-fx text-brand-dark text-2xl group-hover:text-brand-main lg:text-base" />
-              <span className="hidden text-brand-dark text-xs font-semibold lg:block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 group-hover:after:w-full">
-                Search
-              </span>
-              <motion.div
-                initial="collapsed"
-                animate={showSearch ? "open" : "collapsed"}
-                variants={{
-                  open: { opacity: 1, y: 0 },
-                  collapsed: { opacity: 0, y: -100 },
-                }}
-                transition={{ duration: 0.5 }}
-                className="absolute top-full mt-2 -right-8 lg:-right-4 w-[calc(100vw-4rem)] lg:w-72 bg-white shadow-xl rounded-lg p-3 flex items-center gap-2 border border-gray-300"
-              >
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full bg-transparent border-none outline-none text-sm text-brand-dark placeholder:text-gray-500"
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Add search logic
-                  }}
-                  className="transition-fx hover:text-brand-main text-brand-dark"
-                >
-                  <BiSearch className="text-xl" />
-                </button>
-              </motion.div>
+            <div className="relative" ref={searchInputRef}>
+              <BiSearch
+                className="text-brand-dark text-2xl cursor-pointer hover:text-brand-main lg:text-base"
+                onClick={() => setShowSearch(!showSearch)}
+              />
+
+              <AnimatePresence>
+                {showSearch && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="absolute top-[-10px] right-0 z-50"
+                  >
+                    <div className="flex items-center gap-2 bg-white shadow-lg rounded-md p-2">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        placeholder="Search products..."
+                        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-brand-main w-60 text-sm"
+                        autoFocus
+                      />
+                    </div>
+
+                    {searchResults.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="absolute top-full right-0 mt-2 w-80 bg-white shadow-lg rounded-md overflow-hidden border-2 border-gray-200"
+                      >
+                        <div className="max-h-[400px] overflow-y-auto">
+                          {searchResults.map(
+                            (product: SearchProduct, index: number) => (
+                              <Link
+                                key={`search-result-${index}-${product.name}`}
+                                href={`/products?search=${encodeURIComponent(product.name)}`}
+                                className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors"
+                                onClick={() => {
+                                  setShowSearch(false);
+                                  setSearchQuery("");
+                                  setSearchResults([]);
+                                }}
+                              >
+                                <div className="w-12 h-12 relative rounded overflow-hidden">
+                                  <Image
+                                    src={
+                                      product.images?.[0] || defaultImage.src
+                                    }
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="text-sm font-medium line-clamp-1">
+                                    {product.name}
+                                  </h4>
+                                  <p className="text-sm text-brand-main">
+                                    {formatPrice(
+                                      product.discountPrice || product.price
+                                    )}
+                                  </p>
+                                </div>
+                              </Link>
+                            )
+                          )}
+
+                          <button
+                            onClick={handleSeeAll}
+                            className="w-full p-3 text-center text-brand-main hover:bg-gray-50 transition-colors font-medium border-t"
+                          >
+                            See all results
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+
             <div className="hidden h-6 w-[1px] bg-gray-300 lg:block"></div>
             <div className="hidden items-center text-xs font-semibold gap-2 cursor-pointer lg:flex group">
               <span className="hidden text-brand-dark text-xs font-semibold lg:block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 group-hover:after:w-full">
