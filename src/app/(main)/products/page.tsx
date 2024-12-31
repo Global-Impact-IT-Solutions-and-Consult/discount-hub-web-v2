@@ -158,7 +158,9 @@ const ProductsPage = () => {
         <span className="text-brand-main">Products</span>
       </nav>
 
-      <h1 className="text-3xl sm:text-4xl font-bold">All Products</h1>
+      <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+        {selectedCategory || "All Products"}
+      </h1>
 
       <div className="pt-4 border-t flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm font-semibold my-4 sm:my-8 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -266,8 +268,11 @@ const ProductsPage = () => {
                       className="overflow-hidden"
                     >
                       <div className="flex flex-col gap-4 pl-4 py-2">
-                        {allCategories?.map(
-                          (category: Category, index: number) => (
+                        {allCategories
+                          ?.filter(
+                            (category: Category) => category.productCount > 0
+                          )
+                          .map((category: Category, index: number) => (
                             <motion.div
                               key={index}
                               initial={{ opacity: 0, y: -20 }}
@@ -285,8 +290,7 @@ const ProductsPage = () => {
                               </span>
                               <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
                             </motion.div>
-                          )
-                        )}
+                          ))}
                       </div>
                     </motion.div>
                   </div>
