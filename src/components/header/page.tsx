@@ -17,6 +17,9 @@ import defaultImage from "@/assets/imgs/landing/latest-arrivals/1a.jpg";
 import { formatPrice } from "@/utils/formatNumber";
 import { AnimatePresence } from "framer-motion";
 
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducts, fetchCategories } from "@/api/products.api";
+
 interface Category {
   category: {
     name: string;
@@ -37,14 +40,24 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const { data: allCategories = [], isLoading } = useCategories();
   const { scrollY } = useScroll();
   const lastYRef = useRef(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchProduct[]>([]);
-  const { data: products = [] } = useProducts();
+  // const { data: products = [] } = useProducts();
+  // const { data: allCategories = [], isLoading } = useCategories();
   const router = useRouter();
   const searchInputRef = useRef<HTMLDivElement>(null);
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["fetchProducts"],
+    queryFn: fetchProducts,
+  });
+
+  const { data: allCategories } = useQuery({
+    queryKey: ["fetchCategories"],
+    queryFn: fetchCategories,
+  });
 
   // Reset showAllCategories when dropdown closes
   const handleDropdownClose = (e: React.MouseEvent<HTMLDivElement>) => {

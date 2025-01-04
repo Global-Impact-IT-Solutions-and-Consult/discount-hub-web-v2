@@ -3,12 +3,20 @@
 import React from "react";
 import MainButton from "@/components/mainButton/page";
 import DealCard from "@/components/dealCard/page";
-import { useProducts } from "@/hooks/useQueries";
+// import { useProducts } from "@/hooks/useQueries";
 import AtomLoader from "@/components/loader/AtomLoader";
 import Link from "next/link";
 
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducts } from "@/api/products.api";
+
 const LatestArrivals = () => {
-  const { data: products, isLoading } = useProducts();
+  // const { data: products, isLoading } = useProducts();
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["fetchProducts"],
+    queryFn: fetchProducts,
+  });
 
   if (isLoading) {
     return <AtomLoader />;

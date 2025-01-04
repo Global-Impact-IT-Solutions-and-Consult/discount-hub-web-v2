@@ -10,10 +10,13 @@ import {
   IoChevronForward,
   IoChevronBack,
 } from "react-icons/io5";
-import { useProducts, useCategories } from "@/hooks/useQueries";
+// import { useProducts, useCategories } from "@/hooks/useQueries";
 import AtomLoader from "@/components/loader/AtomLoader";
 import { formatPrice } from "@/utils/formatNumber";
 import { useSearchParams } from "next/navigation";
+
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducts, fetchCategories } from "@/api/products.api";
 
 interface Product {
   id: string;
@@ -35,8 +38,8 @@ interface Category {
 }
 
 const ProductsPage = () => {
-  const { data: products, isLoading } = useProducts();
-  const { data: allCategories = [] } = useCategories();
+  // const { data: products, isLoading } = useProducts();
+  // const { data: allCategories = [] } = useCategories();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState("default");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -45,6 +48,17 @@ const ProductsPage = () => {
   const [priceRange, setPriceRange] = useState(500);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["fetchProducts"],
+    queryFn: fetchProducts,
+  });
+
+  const { data: allCategories } = useQuery({
+    queryKey: ["fetchCategories"],
+    queryFn: fetchCategories,
+  });
+
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("category");
   const searchQuery = searchParams.get("search");

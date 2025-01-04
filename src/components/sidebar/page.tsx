@@ -5,8 +5,11 @@ import {
   IoChevronDown,
   IoChevronForward,
 } from "react-icons/io5";
-import { useCategories } from "@/hooks/useQueries";
+// import { useCategories } from "@/hooks/useQueries";
 import Link from "next/link";
+
+import { useQuery } from "@tanstack/react-query";
+import { fetchCategories } from "@/api/products.api";
 
 interface Category {
   category: {
@@ -24,7 +27,12 @@ const Sidebar = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const { data: allCategories = [] } = useCategories(); // Removed isLoading since it's not being used
+  // const { data: allCategories = [] } = useCategories(); // Removed isLoading since it's not being used
+
+  const { data: allCategories } = useQuery({
+    queryKey: ["fetchCategories"],
+    queryFn: fetchCategories,
+  });
 
   // Reset states when sidebar or dropdown closes
   useEffect(() => {
