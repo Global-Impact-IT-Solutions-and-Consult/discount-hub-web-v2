@@ -10,13 +10,13 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/api/products.api";
 
-const LatestArrivals = ({ products}) => {
+const LatestArrivals = ({ products }: any) => {
   // const { data: products, isLoading } = useProducts();
 
   const { data, isLoading } = useQuery({
     queryKey: ["fetchProducts"],
     queryFn: fetchProducts,
-    initialData : products,
+    initialData: products,
   });
 
   if (isLoading) {
