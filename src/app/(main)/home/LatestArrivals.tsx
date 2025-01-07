@@ -10,12 +10,13 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/api/products.api";
 
-const LatestArrivals = () => {
+const LatestArrivals = ({ products}) => {
   // const { data: products, isLoading } = useProducts();
 
-  const { data: products, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["fetchProducts"],
     queryFn: fetchProducts,
+    initialData : products,
   });
 
   if (isLoading) {
@@ -23,7 +24,7 @@ const LatestArrivals = () => {
   }
 
   // Get the latest 4 products
-  const latestProducts = products?.slice(0, 4);
+  const latestProducts = data?.slice(0, 4);
 
   return (
     <>
