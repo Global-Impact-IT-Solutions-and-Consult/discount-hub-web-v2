@@ -3,18 +3,27 @@ import Hero from "./Hero";
 import ByCategory from "./ByCategory";
 import LatestArrivals from "./LatestArrivals";
 import { fetchProducts } from "@/api/products.api";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 // import Services from "./Services";
 
-const Landing = () => {
-  const products = fetchProducts()
+const Landing = async () => {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+
   return (
-    <div className="flex flex-col gap-16">
-      {/* Home */}
-      <Hero />
-      <ByCategory />
-      <LatestArrivals products ={products } />
-      {/* <Services /> */}
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="flex flex-col gap-16">
+        {/* Home */}
+        <Hero />
+        <ByCategory />
+        <LatestArrivals />
+        {/* <Services /> */}
+      </div>
+    </HydrationBoundary>
   );
 };
 
