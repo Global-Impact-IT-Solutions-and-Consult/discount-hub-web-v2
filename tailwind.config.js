@@ -24,5 +24,11 @@ module.exports = {
       },
     },
   },
+  safelist: [
+    {
+      pattern:
+        /bg-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-500/,
+    },
+  ],
   plugins: [],
 };

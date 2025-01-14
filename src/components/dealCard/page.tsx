@@ -8,9 +8,10 @@ interface DealCardProps {
   image: string;
   imagea: string;
   title: string;
-  description: string;
   price: number;
   discountPrice?: number;
+  store?: string;
+  badgeColor?: string;
   className?: string;
 }
 
@@ -18,12 +19,12 @@ const DealCard = ({
   image,
   imagea,
   title,
-  description,
   price,
   discountPrice,
+  store,
+  badgeColor,
   className,
 }: DealCardProps) => {
-  // Validate image URLs
   const isValidUrl = (url: string) => {
     try {
       new URL(url);
@@ -44,11 +45,15 @@ const DealCard = ({
       )}
     >
       <div className="relative h-[334px]">
-        {/* {discountPrice && (
-          <span className="absolute top-4 left-4 bg-brand-main text-white px-2 py-1 z-10 rounded">
-            Sale
+        {store && (
+          <span
+            className={`absolute top-4 right-0 px-3 py-1.5 z-10 rounded-full ${
+              badgeColor ? `bg-${badgeColor}-500` : "bg-brand-main"
+            } text-white text-xs font-semibold`}
+          >
+            {store}
           </span>
-        )} */}
+        )}
         <Image
           src={primaryImage}
           alt={title || "Product Image"}
@@ -73,9 +78,6 @@ const DealCard = ({
             </React.Fragment>
           ))}
         </h3>
-        <p className="text-sm text-gray-600 line-clamp-2 lg:line-clamp-1">
-          {description}
-        </p>
         <div className="flex items-center gap-2">
           {discountPrice ? (
             <>

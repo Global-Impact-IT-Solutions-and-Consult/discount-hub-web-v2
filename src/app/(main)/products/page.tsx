@@ -25,6 +25,7 @@ interface Product {
   category: string;
   store: string;
   description: string;
+  badgeColor: string;
   images: string[];
   discountPrice?: number;
 }
@@ -325,9 +326,11 @@ const ProductsPage = () => {
               image={product.images?.[0] || ""}
               imagea={product.images?.[1] || product.images?.[0] || ""}
               title={product.name || "Untitled Product"}
-              description={product.store || "No store available"}
+              // description={product.store || "No store available"}
               price={product.price || 0}
               discountPrice={product.discountPrice}
+              store={product.store || "No store available"}
+              badgeColor={product.badgeColor}
             />
           </div>
         ))}

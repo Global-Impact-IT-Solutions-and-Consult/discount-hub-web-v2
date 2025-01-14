@@ -40,8 +40,9 @@ const LatestArrivals = () => {
             image={product.images?.[0] || ""}
             imagea={product.images?.[1] || product.images?.[0] || ""}
             title={product.name || "Untitled Product"}
-            description={product.store || "No store available"}
+            store={product.store || "No store available"}
             price={product.price || 0}
+            badgeColor={product.badgeColor}
             discountPrice={product.discountPrice}
           />
         ))}

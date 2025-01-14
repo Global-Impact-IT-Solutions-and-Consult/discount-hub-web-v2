@@ -325,12 +325,12 @@ const Header = () => {
                 My Account
               </span>
             </div>
-            <div className="flex items-center gap-2 cursor-pointer group">
+            {/* <div className="flex items-center gap-2 cursor-pointer group">
               <CgShoppingCart className="text-brand-dark text-2xl group-hover:text-brand-main lg:text-base" />
               <span className="hidden text-brand-dark text-xs font-semibold lg:block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 group-hover:after:w-full">
                 Cart
               </span>
-            </div>
+            </div> */}
           </div>
         </div>
       </motion.div>
