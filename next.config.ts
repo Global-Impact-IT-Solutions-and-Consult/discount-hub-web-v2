@@ -5,12 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "ng.jumia.is",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "www-konga-com-res.cloudinary.com",
+        hostname: "**",
         pathname: "/**",
       },
     ],

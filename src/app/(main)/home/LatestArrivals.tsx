@@ -35,16 +35,34 @@ const LatestArrivals = () => {
           </Link>
         </div>
         {latestProducts?.map((product: any, index: number) => (
-          <DealCard
-            key={index}
-            image={product.images?.[0] || ""}
-            imagea={product.images?.[1] || product.images?.[0] || ""}
-            title={product.name || "Untitled Product"}
-            store={product.store || "No store available"}
-            price={product.price || 0}
-            badgeColor={product.badgeColor}
-            discountPrice={product.discountPrice}
-          />
+          <div
+            key={`product-${product.id}-${index}`}
+            className="col-span-12 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
+          >
+            <DealCard
+              image={product.images?.[0] || ""}
+              imagea={product.images?.[1] || product.images?.[0] || ""}
+              title={product.name || "Untitled Product"}
+              price={product.price || 0}
+              discountPrice={product.discountPrice}
+              store={product.storeName || "No store available"}
+              logo={product.storeLogo}
+              badgeColor={product.badgeColor}
+              id={product._id}
+            />
+          </div>
+          // <DealCard
+          //   key={index}
+          //   image={product.images?.[0] || ""}
+          //   imagea={product.images?.[1] || product.images?.[0] || ""}
+          //   title={product.name || "Untitled Product"}
+          //   price={product.price || 0}
+          //   discountPrice={product.discountPrice}
+          //   store={product.storeName || "No store available"}
+          //   logo={product.storeLogo}
+          //   badgeColor={product.badgeColor}
+          //   id={product._id}
+          // />
         ))}
       </div>
     </>
