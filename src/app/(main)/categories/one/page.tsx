@@ -16,6 +16,7 @@ import { useSearchParams } from "next/navigation";
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, fetchCategories } from "@/api/products.api";
+import bg from "@/assets/imgs/categories/categoryBg.jpg";
 
 interface Product {
   id: string;
@@ -47,6 +48,7 @@ const ProductsPage = () => {
   const [priceRange, setPriceRange] = useState(500);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [randomColor, setRandomColor] = useState("teal");
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["fetchProducts"],
@@ -161,6 +163,40 @@ const ProductsPage = () => {
     pageNumbers.push(i);
   }
 
+  // Utility function to generate a random color
+  const getRandomColor = () => {
+    const colors = [
+      // "#F8FAFC", // slate-300
+      // "#D1D5DB", // gray-300
+      // "#D4D4D8", // zinc-300
+      // "#D6D3C0", // neutral-300
+      // "#D9D9D9", // stone-300
+      "#FCA5A1", // red-300
+      // "#FBBF24", // orange-300
+      "#FBBF24", // amber-300
+      // "#FDE047", // yellow-300
+      "#A6E3A1", // lime-300
+      "#4ADE80", // green-300
+      "#34D399", // emerald-300
+      "#2DD4BF", // teal-300
+      "#22D3EE", // cyan-300
+      "#38BDF8", // sky-300
+      "#3B82F6", // blue-300
+      "#6366F1", // indigo-300
+      "#8B5BE5", // violet-300
+      "#A855F7", // purple-300
+      "#D946EF", // fuchsia-300
+      "#F472B6", // pink-300
+      "#F43F5E", // rose-300
+    ];
+
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+  useEffect(() => {
+    setRandomColor(getRandomColor());
+  }, [categoryFromUrl]);
+
   if (isLoading) {
     return <AtomLoader />;
   }
@@ -182,9 +218,25 @@ const ProductsPage = () => {
         <span className="text-brand-main capitalize">{selectedCategory}</span>
       </nav>
 
-      <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+      {/* Add a banner Image here, you can use svg or something to make a design then put the category name in the center of the banner, make it like a jumbotron or some hero image */}
+      <div
+        className="w-full p-16 rounded-lg flex items-center justify-center lg:py-32"
+        style={{
+          backgroundImage: `url(${bg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.8, // Adjust transparency here
+          backgroundColor: randomColor,
+        }}
+      >
+        <h1 className="text-3xl font-bold text-brand-white capitalize sm:text-4xl">
+          {selectedCategory}
+        </h1>
+      </div>
+
+      {/* <h1 className="text-3xl sm:text-4xl font-bold capitalize">
         {selectedCategory}
-      </h1>
+      </h1> */}
 
       <div className="pt-4 border-t flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm font-semibold my-4 sm:my-8 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -272,7 +324,7 @@ const ProductsPage = () => {
         {currentProducts.map((product: Product, index: number) => (
           <div
             key={`product-${product.id}-${index}`}
-            className="col-span-12 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
+            className="col-span-6 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
           >
             <DealCard
               image={product.images?.[0] || ""}

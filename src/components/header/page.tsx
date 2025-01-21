@@ -19,6 +19,8 @@ import {
   fetchCategories,
   searchProducts,
 } from "@/api/products.api";
+import { AiFillApple } from "react-icons/ai";
+import { SparklesIcon } from "@heroicons/react/24/solid";
 
 interface Category {
   category: {
@@ -81,20 +83,29 @@ const Header = () => {
   ) : (
     <>
       {allCategories?.slice(0, 5).map((category: Category, index: number) => (
-        <div
+        <Link
           key={index}
+          href={`/categories/one?category=${encodeURIComponent(
+            category.category.name
+          )}`}
           className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
         >
           {category.category.name}
-        </div>
+        </Link>
       ))}
       {!showAllCategories && allCategories?.length > 5 && (
-        <button
-          onClick={() => setShowAllCategories(true)}
+        <Link
+          href={"/categories"}
           className="transition-fx text-brand-main px-4 py-2 text-sm font-semibold text-left hover:text-brand-main/80"
         >
           All Categories
-        </button>
+        </Link>
+        // <button
+        //   onClick={() => setShowAllCategories(true)}
+        //   className="transition-fx text-brand-main px-4 py-2 text-sm font-semibold text-left hover:text-brand-main/80"
+        // >
+        //   All Categories
+        // </button>
       )}
       {showAllCategories && (
         <div className="max-h-[400px] overflow-y-auto">
@@ -329,6 +340,20 @@ const Header = () => {
                 My Account
               </span>
             </div>
+            <div className="hidden h-6 w-[1px] bg-gray-300 lg:block"></div>
+            <Link
+              href={"/chat"}
+              className="group flex items-center gap-2 cursor-pointer group bg-brand-dark rounded-full px-4 py-2 border-[1px] hover:bg-brand-white hover:border-brand-dark"
+            >
+              <SparklesIcon className="text-brand-white w-5 h-5 group-hover:text-brand-main lg:text-base" />
+              <span className="hidden text-brand-white text-xs font-semibold group-hover:text-brand-dark lg:block ">
+                Chat With AI
+              </span>
+            </Link>
+            {/* <button className="flex items-center px-4 py-2 rounded-full bg-green-100">
+              <SparklesIcon className="w-5 h-5 text-green-500" />
+              <span className="ml-2 text-green-700 font-medium">AI</span>
+            </button> */}
           </div>
         </div>
       </motion.div>

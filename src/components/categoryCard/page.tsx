@@ -18,7 +18,7 @@ const CategoryCard = ({ link, image, title }: any) => {
           className="object-cover transition-transform duration-300 group-hover:scale-110"
         />
         <div className="absolute bottom-0 w-full p-4 text-center bg-gradient-to-t from-black/50 to-transparent">
-          <span className="text-white font-medium">{title}</span>
+          <span className="text-white font-medium capitalize">{title}</span>
         </div>
       </Link>
     </>
