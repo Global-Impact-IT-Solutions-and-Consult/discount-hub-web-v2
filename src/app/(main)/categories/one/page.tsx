@@ -220,14 +220,14 @@ const ProductsPage = () => {
 
       {/* Add a banner Image here, you can use svg or something to make a design then put the category name in the center of the banner, make it like a jumbotron or some hero image */}
       <div
-        className="w-full p-16 rounded-lg flex items-center justify-center lg:py-32"
-        style={{
-          backgroundImage: `url(${bg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.8, // Adjust transparency here
-          backgroundColor: randomColor,
-        }}
+        className="w-full p-16 rounded-lg flex items-center justify-center bg-emerald-400 lg:py-32"
+        // style={{
+        //   backgroundImage: `url(${bg})`,
+        //   backgroundSize: "cover",
+        //   backgroundPosition: "center",
+        //   opacity: 0.8, // Adjust transparency here
+        //   backgroundColor: randomColor,
+        // }}
       >
         <h1 className="text-3xl font-bold text-brand-white capitalize sm:text-4xl">
           {selectedCategory}

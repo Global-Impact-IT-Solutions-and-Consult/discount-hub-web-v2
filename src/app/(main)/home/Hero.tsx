@@ -123,7 +123,7 @@ const Hero = () => {
         className="flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
-        {allCategories.map((category: Category, index: number) => {
+        {allCategories?.map((category: Category, index: number) => {
           const imageKey = category.category.name
             .toLowerCase()
             .replace(/\s+/g, "_");
