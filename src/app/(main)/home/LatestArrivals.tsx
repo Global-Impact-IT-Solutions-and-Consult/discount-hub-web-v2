@@ -10,6 +10,18 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/api/products.api";
 
+interface Product {
+  id: string;
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  storeName: string;
+  storeLogo: string;
+  badgeColor: string;
+  discountPrice: number;
+}
+
 const LatestArrivals = () => {
   // const { data: products, isLoading } = useProducts();
 
@@ -34,7 +46,7 @@ const LatestArrivals = () => {
             <MainButton text="View All" />
           </Link>
         </div>
-        {latestProducts?.map((product: any, index: number) => (
+        {latestProducts?.map((product: Product, index: number) => (
           <div
             key={`product-${product.id}-${index}`}
             className="col-span-6 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
