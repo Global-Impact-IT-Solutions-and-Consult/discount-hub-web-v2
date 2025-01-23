@@ -115,7 +115,7 @@ const Sidebar = ({
                   className={`flex flex-col gap-4 pl-4 py-2 ${showAllCategories ? "border-b border-gray-200" : ""}`}
                 >
                   {allCategories
-                    ?.filter((category) => category.productCount > 0)
+                    ?.filter((category: Category) => category.productCount > 0)
                     ?.slice(0, 10)
                     .map((category: Category, index: number) => (
                       <Link
@@ -132,7 +132,7 @@ const Sidebar = ({
                     ))}
                   {!showAllCategories &&
                     allCategories?.filter(
-                      (category) => category.productCount > 0
+                      (category: Category) => category.productCount > 0
                     ).length > 10 && (
                       <motion.div
                         initial={{ opacity: 0, y: -20 }}
@@ -152,7 +152,9 @@ const Sidebar = ({
                       className="flex flex-col gap-4"
                     >
                       {allCategories
-                        ?.filter((category) => category.productCount > 0)
+                        ?.filter(
+                          (category: Category) => category.productCount > 0
+                        )
                         ?.slice(10)
                         .map((category: Category, index: number) => (
                           <Link

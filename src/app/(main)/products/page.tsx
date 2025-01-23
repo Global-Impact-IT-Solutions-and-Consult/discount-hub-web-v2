@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import DealCard from "@/components/dealCard/page";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,7 +10,6 @@ import {
   IoChevronForward,
   IoChevronBack,
 } from "react-icons/io5";
-// import { useProducts, useCategories } from "@/hooks/useQueries";
 import AtomLoader from "@/components/loader/AtomLoader";
 import { formatPrice } from "@/utils/formatNumber";
 import { useSearchParams } from "next/navigation";
@@ -19,12 +18,15 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, fetchCategories } from "@/api/products.api";
 
 interface Product {
+  _id: string;
   id: string;
   name: string;
   price: number;
   category: string;
-  store: string;
+  storeName: string;
+  storeLogo: string;
   description: string;
+  badgeColor: string;
   images: string[];
   discountPrice?: number;
 }
@@ -38,8 +40,6 @@ interface Category {
 }
 
 const ProductsPage = () => {
-  // const { data: products, isLoading } = useProducts();
-  // const { data: allCategories = [] } = useCategories();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState("default");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -54,7 +54,7 @@ const ProductsPage = () => {
     queryFn: fetchProducts,
   });
 
-  const { data: allCategories } = useQuery({
+  const { data: allCategories = [] } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
@@ -104,6 +104,10 @@ const ProductsPage = () => {
         );
         if (selectedCategoryData) {
           filtered = selectedCategoryData.productsInCategory;
+        } else {
+          filtered = filtered.filter(
+            (product) => product.category === selectedCategory
+          );
         }
       }
 
@@ -173,7 +177,9 @@ const ProductsPage = () => {
       </nav>
 
       <h1 className="text-3xl sm:text-4xl font-bold capitalize">
-        {selectedCategory || "All Products"}
+        {selectedCategory ||
+          (searchQuery && `Showing results for ` + searchQuery) ||
+          "All Products"}
       </h1>
 
       <div className="pt-4 border-t flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm font-semibold my-4 sm:my-8 gap-4">
@@ -319,15 +325,18 @@ const ProductsPage = () => {
         {currentProducts.map((product: Product, index: number) => (
           <div
             key={`product-${product.id}-${index}`}
-            className="col-span-12 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
+            className="col-span-6 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
           >
             <DealCard
               image={product.images?.[0] || ""}
               imagea={product.images?.[1] || product.images?.[0] || ""}
               title={product.name || "Untitled Product"}
-              description={product.store || "No store available"}
               price={product.price || 0}
               discountPrice={product.discountPrice}
+              store={product.storeName || "No store available"}
+              logo={product.storeLogo}
+              badgeColor={product.badgeColor}
+              id={product._id}
             />
           </div>
         ))}
@@ -368,4 +377,12 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+// export default ProductsPage;
+
+export default function Page() {
+  return (
+    <Suspense fallback={<AtomLoader />}>
+      <ProductsPage />
+    </Suspense>
+  );
+}

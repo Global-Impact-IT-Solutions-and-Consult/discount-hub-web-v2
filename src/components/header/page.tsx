@@ -1,15 +1,11 @@
 "use client";
 
-// import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
-// import logo from "@/assets/imgs/logo.png";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import Sidebar from "../sidebar/page";
 import { BiSearch, BiSolidDiscount } from "react-icons/bi";
-import { CgShoppingCart } from "react-icons/cg";
 import Link from "next/link";
 import { IoChevronDown } from "react-icons/io5";
-import { useCategories, useProducts } from "@/hooks/useQueries";
 import AtomLoader from "@/components/loader/AtomLoader";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -18,7 +14,8 @@ import { formatPrice } from "@/utils/formatNumber";
 import { AnimatePresence } from "framer-motion";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchProducts, fetchCategories } from "@/api/products.api";
+import { fetchCategories, searchProducts } from "@/api/products.api";
+import { SparklesIcon } from "@heroicons/react/24/solid";
 
 interface Category {
   category: {
@@ -44,17 +41,16 @@ const Header = () => {
   const lastYRef = useRef(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchProduct[]>([]);
-  // const { data: products = [] } = useProducts();
-  // const { data: allCategories = [], isLoading } = useCategories();
   const router = useRouter();
   const searchInputRef = useRef<HTMLDivElement>(null);
+  const [searchInput, setSearchInput] = useState("");
 
-  const { data: products, isLoading } = useQuery({
-    queryKey: ["fetchProducts"],
-    queryFn: fetchProducts,
-  });
+  // const { data: products, isLoading } = useQuery({
+  //   queryKey: ["fetchProducts"],
+  //   queryFn: fetchProducts,
+  // });
 
-  const { data: allCategories } = useQuery({
+  const { data: allCategories, isLoading } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
@@ -72,7 +68,6 @@ const Header = () => {
     const difference = y - lastYRef.current;
     if (Math.abs(difference) > 50) {
       setIsHidden(difference > 0);
-
       lastYRef.current = y;
     }
   });
@@ -83,20 +78,29 @@ const Header = () => {
   ) : (
     <>
       {allCategories?.slice(0, 5).map((category: Category, index: number) => (
-        <div
+        <Link
           key={index}
+          href={`/categories/one?category=${encodeURIComponent(
+            category.category.name
+          )}`}
           className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
         >
           {category.category.name}
-        </div>
+        </Link>
       ))}
       {!showAllCategories && allCategories?.length > 5 && (
-        <button
-          onClick={() => setShowAllCategories(true)}
+        <Link
+          href={"/categories"}
           className="transition-fx text-brand-main px-4 py-2 text-sm font-semibold text-left hover:text-brand-main/80"
         >
           All Categories
-        </button>
+        </Link>
+        // <button
+        //   onClick={() => setShowAllCategories(true)}
+        //   className="transition-fx text-brand-main px-4 py-2 text-sm font-semibold text-left hover:text-brand-main/80"
+        // >
+        //   All Categories
+        // </button>
       )}
       {showAllCategories && (
         <div className="max-h-[400px] overflow-y-auto">
@@ -114,15 +118,11 @@ const Header = () => {
   );
 
   // Handle search input
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.trim()) {
-      const filtered = products
-        .filter((product: any) =>
-          product.name.toLowerCase().includes(query.toLowerCase())
-        )
-        .slice(0, 5);
-      setSearchResults(filtered);
+      const results = await searchProducts(query);
+      setSearchResults(results.slice(0, 5));
       setShowSearch(true);
     } else {
       setSearchResults([]);
@@ -135,6 +135,7 @@ const Header = () => {
     router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
     setShowSearch(false);
     setSearchQuery("");
+    setSearchInput("");
     setSearchResults([]);
   };
 
@@ -147,6 +148,7 @@ const Header = () => {
       ) {
         setShowSearch(false);
         setSearchQuery("");
+        setSearchInput("");
         setSearchResults([]);
       }
     };
@@ -254,11 +256,19 @@ const Header = () => {
                     <div className="flex items-center gap-2 bg-white shadow-lg rounded-md p-2">
                       <input
                         type="text"
-                        value={searchQuery}
-                        onChange={(e) => handleSearch(e.target.value)}
+                        // value={searchQuery}
+                        value={searchInput}
+                        // onChange={(e) => handleSearch(e.target.value)}
+                        // onChange={(e) => onchangeHandler(e.target.value)}
+                        onChange={(e) => setSearchInput(e.target.value)}
                         placeholder="Search products..."
                         className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-brand-main w-60 text-sm"
                         autoFocus
+                      />
+                      <BiSearch
+                        className="text-brand-dark text-2xl cursor-pointer hover:text-brand-main lg:text-base"
+                        // onClick={() => setShowSearch(!showSearch)}
+                        onClick={() => handleSearch(searchInput)}
                       />
                     </div>
 
@@ -325,12 +335,20 @@ const Header = () => {
                 My Account
               </span>
             </div>
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <CgShoppingCart className="text-brand-dark text-2xl group-hover:text-brand-main lg:text-base" />
-              <span className="hidden text-brand-dark text-xs font-semibold lg:block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-current after:transition-all after:duration-300 group-hover:after:w-full">
-                Cart
+            <div className="hidden h-6 w-[1px] bg-gray-300 lg:block"></div>
+            <Link
+              href={"/chat"}
+              className="group flex items-center gap-2 cursor-pointer group bg-brand-dark rounded-full px-4 py-2 border-[1px] hover:bg-brand-white hover:border-brand-dark"
+            >
+              <SparklesIcon className="text-brand-white w-5 h-5 group-hover:text-brand-main lg:text-base" />
+              <span className="hidden text-brand-white text-xs font-semibold group-hover:text-brand-dark lg:block ">
+                Chat With AI
               </span>
-            </div>
+            </Link>
+            {/* <button className="flex items-center px-4 py-2 rounded-full bg-green-100">
+              <SparklesIcon className="w-5 h-5 text-green-500" />
+              <span className="ml-2 text-green-700 font-medium">AI</span>
+            </button> */}
           </div>
         </div>
       </motion.div>

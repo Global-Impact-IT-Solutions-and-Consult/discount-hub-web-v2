@@ -10,6 +10,18 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/api/products.api";
 
+interface Product {
+  id: string;
+  _id: string;
+  name: string;
+  price: number;
+  images: string[];
+  storeName: string;
+  storeLogo: string;
+  badgeColor: string;
+  discountPrice: number;
+}
+
 const LatestArrivals = () => {
   // const { data: products, isLoading } = useProducts();
 
@@ -34,16 +46,35 @@ const LatestArrivals = () => {
             <MainButton text="View All" />
           </Link>
         </div>
-        {latestProducts?.map((product: any, index: number) => (
-          <DealCard
-            key={index}
-            image={product.images?.[0] || ""}
-            imagea={product.images?.[1] || product.images?.[0] || ""}
-            title={product.name || "Untitled Product"}
-            description={product.store || "No store available"}
-            price={product.price || 0}
-            discountPrice={product.discountPrice}
-          />
+        {latestProducts?.map((product: Product, index: number) => (
+          <div
+            key={`product-${product.id}-${index}`}
+            className="col-span-6 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
+          >
+            <DealCard
+              image={product.images?.[0] || ""}
+              imagea={product.images?.[1] || product.images?.[0] || ""}
+              title={product.name || "Untitled Product"}
+              price={product.price || 0}
+              discountPrice={product.discountPrice}
+              store={product.storeName || "No store available"}
+              logo={product.storeLogo}
+              badgeColor={product.badgeColor}
+              id={product._id}
+            />
+          </div>
+          // <DealCard
+          //   key={index}
+          //   image={product.images?.[0] || ""}
+          //   imagea={product.images?.[1] || product.images?.[0] || ""}
+          //   title={product.name || "Untitled Product"}
+          //   price={product.price || 0}
+          //   discountPrice={product.discountPrice}
+          //   store={product.storeName || "No store available"}
+          //   logo={product.storeLogo}
+          //   badgeColor={product.badgeColor}
+          //   id={product._id}
+          // />
         ))}
       </div>
     </>

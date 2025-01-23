@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { formatPrice } from "@/utils/formatNumber";
 import defaultImage from "@/assets/imgs/landing/latest-arrivals/1a.jpg";
@@ -8,9 +9,12 @@ interface DealCardProps {
   image: string;
   imagea: string;
   title: string;
-  description: string;
   price: number;
   discountPrice?: number;
+  store?: string;
+  logo: string;
+  badgeColor?: string;
+  id: string;
   className?: string;
 }
 
@@ -18,12 +22,14 @@ const DealCard = ({
   image,
   imagea,
   title,
-  description,
   price,
   discountPrice,
+  store,
+  badgeColor,
+  logo,
+  id,
   className,
 }: DealCardProps) => {
-  // Validate image URLs
   const isValidUrl = (url: string) => {
     try {
       new URL(url);
@@ -35,34 +41,52 @@ const DealCard = ({
 
   const primaryImage = isValidUrl(image) ? image : defaultImage.src;
   const secondaryImage = isValidUrl(imagea) ? imagea : defaultImage.src;
+  const storeLogo = isValidUrl(logo) ? logo : defaultImage.src;
 
   return (
-    <div
+    <Link
+      href={`/products/one?id=${id}`}
       className={twMerge(
-        "relative col-span-6 lg:col-span-3 overflow-hidden rounded-lg group cursor-pointer",
+        "relative col-span-6 overflow-hidden rounded-lg group cursor-pointer lg:col-span-3",
         className
       )}
     >
+      {/* <div className="relative h-[334px] bg-brand-grayish/20 rounded-md"> */}
       <div className="relative h-[334px]">
-        {/* {discountPrice && (
-          <span className="absolute top-4 left-4 bg-brand-main text-white px-2 py-1 z-10 rounded">
-            Sale
+        {logo ? (
+          <Image
+            src={storeLogo}
+            alt={store || "Store Logo"}
+            width={64}
+            height={64}
+            // className="glass-fx absolute top-4 right-4 object-cover z-10 shadow-md"
+            className="glass-fx absolute top-0 right-0 object-cover z-10 shadow-md"
+          />
+        ) : (
+          <span
+            className={`absolute top-4 right-0 px-3 py-1.5 z-10 rounded-full ${
+              badgeColor ? `bg-${badgeColor}-500` : "bg-brand-main"
+            } text-white text-xs font-semibold`}
+          >
+            {store}
           </span>
-        )} */}
+        )}
         <Image
           src={primaryImage}
           alt={title || "Product Image"}
           fill
-          className="object-cover transition-opacity duration-300 group-hover:opacity-0"
+          className="object-contain transition-opacity duration-300 group-hover:opacity-0"
+          // className="object-scale-down transition-opacity duration-300 group-hover:opacity-0"
         />
         <Image
           src={secondaryImage}
           alt={title || "Product Image"}
           fill
-          className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          // className="object-scale-down opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         />
       </div>
-      <div className="p-4 flex flex-col gap-2">
+      <div className="p-4 flex flex-col gap-2 shadow-md">
         <h3 className="font-medium text-lg line-clamp-2 min-h-[3.5rem]">
           {title.split(" ").map((word, index) => (
             <React.Fragment key={`${title}-${word}-${index}`}>
@@ -73,9 +97,6 @@ const DealCard = ({
             </React.Fragment>
           ))}
         </h3>
-        <p className="text-sm text-gray-600 line-clamp-2 lg:line-clamp-1">
-          {description}
-        </p>
         <div className="flex items-center gap-2">
           {discountPrice ? (
             <>
@@ -93,7 +114,7 @@ const DealCard = ({
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
