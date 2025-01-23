@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import DealCard from "@/components/dealCard/page";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, fetchCategories } from "@/api/products.api";
 
 interface Product {
+  _id: string;
   id: string;
   name: string;
   price: number;
@@ -376,4 +377,12 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+// export default ProductsPage;
+
+export default function Page() {
+  return (
+    <Suspense fallback={<AtomLoader />}>
+      <ProductsPage />
+    </Suspense>
+  );
+}

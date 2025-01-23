@@ -29,6 +29,7 @@ import CategoryCard from "@/components/categoryCard/page";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/api/products.api";
 import AtomLoader from "@/components/loader/AtomLoader";
+import { StaticImageData } from "next/image";
 
 interface Category {
   category: {

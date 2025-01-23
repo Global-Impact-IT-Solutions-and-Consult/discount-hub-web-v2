@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import DealCard from "@/components/dealCard/page";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,9 +16,10 @@ import { useSearchParams } from "next/navigation";
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts, fetchCategories } from "@/api/products.api";
-import bg from "@/assets/imgs/categories/categoryBg.jpg";
+// import bg from "@/assets/imgs/categories/categoryBg.jpg";
 
 interface Product {
+  _id: string;
   id: string;
   name: string;
   price: number;
@@ -48,7 +49,7 @@ const ProductsPage = () => {
   const [priceRange, setPriceRange] = useState(500);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [randomColor, setRandomColor] = useState("teal");
+  // const [randomColor, setRandomColor] = useState("teal");
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["fetchProducts"],
@@ -125,10 +126,10 @@ const ProductsPage = () => {
 
   const productsPerPage = 32;
 
-  const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category.category.name);
-    setIsFilterOpen(false);
-  };
+  // const handleCategorySelect = (category: Category) => {
+  //   setSelectedCategory(category.category.name);
+  //   setIsFilterOpen(false);
+  // };
 
   const sortedProducts = [...filteredProducts].sort(
     (a: Product, b: Product) => {
@@ -164,38 +165,38 @@ const ProductsPage = () => {
   }
 
   // Utility function to generate a random color
-  const getRandomColor = () => {
-    const colors = [
-      // "#F8FAFC", // slate-300
-      // "#D1D5DB", // gray-300
-      // "#D4D4D8", // zinc-300
-      // "#D6D3C0", // neutral-300
-      // "#D9D9D9", // stone-300
-      "#FCA5A1", // red-300
-      // "#FBBF24", // orange-300
-      "#FBBF24", // amber-300
-      // "#FDE047", // yellow-300
-      "#A6E3A1", // lime-300
-      "#4ADE80", // green-300
-      "#34D399", // emerald-300
-      "#2DD4BF", // teal-300
-      "#22D3EE", // cyan-300
-      "#38BDF8", // sky-300
-      "#3B82F6", // blue-300
-      "#6366F1", // indigo-300
-      "#8B5BE5", // violet-300
-      "#A855F7", // purple-300
-      "#D946EF", // fuchsia-300
-      "#F472B6", // pink-300
-      "#F43F5E", // rose-300
-    ];
+  // const getRandomColor = () => {
+  //   const colors = [
+  //     // "#F8FAFC", // slate-300
+  //     // "#D1D5DB", // gray-300
+  //     // "#D4D4D8", // zinc-300
+  //     // "#D6D3C0", // neutral-300
+  //     // "#D9D9D9", // stone-300
+  //     "#FCA5A1", // red-300
+  //     // "#FBBF24", // orange-300
+  //     "#FBBF24", // amber-300
+  //     // "#FDE047", // yellow-300
+  //     "#A6E3A1", // lime-300
+  //     "#4ADE80", // green-300
+  //     "#34D399", // emerald-300
+  //     "#2DD4BF", // teal-300
+  //     "#22D3EE", // cyan-300
+  //     "#38BDF8", // sky-300
+  //     "#3B82F6", // blue-300
+  //     "#6366F1", // indigo-300
+  //     "#8B5BE5", // violet-300
+  //     "#A855F7", // purple-300
+  //     "#D946EF", // fuchsia-300
+  //     "#F472B6", // pink-300
+  //     "#F43F5E", // rose-300
+  //   ];
 
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
+  //   return colors[Math.floor(Math.random() * colors.length)];
+  // };
 
-  useEffect(() => {
-    setRandomColor(getRandomColor());
-  }, [categoryFromUrl]);
+  // useEffect(() => {
+  //   setRandomColor(getRandomColor());
+  // }, [categoryFromUrl]);
 
   if (isLoading) {
     return <AtomLoader />;
@@ -376,4 +377,12 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+// export default ProductsPage;
+
+export default function Page() {
+  return (
+    <Suspense fallback={<AtomLoader />}>
+      <ProductsPage />
+    </Suspense>
+  );
+}

@@ -28,6 +28,7 @@ import Link from "next/link";
 import CategoryCard from "@/components/categoryCard/page";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/api/products.api";
+import { StaticImageData } from "next/image";
 import AtomLoader from "@/components/loader/AtomLoader";
 
 interface Category {
@@ -77,7 +78,7 @@ const ByCategory = () => {
     queryFn: fetchCategories,
   });
 
-  console.log("🚀 ~ Categories ~ allCategories:", allCategories);
+  // console.log("🚀 ~ Categories ~ allCategories:", allCategories);
 
   const imagesMap: Record<string, StaticImageData> = {
     electronics,

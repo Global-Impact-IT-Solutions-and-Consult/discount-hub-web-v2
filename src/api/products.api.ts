@@ -13,6 +13,7 @@ export const fetchProducts = async () => {
 
 export const fetchProductById = async ({ queryKey }: any) => {
   const [_, id] = queryKey;
+  console.log(_);
   const response = await axios.get(`${BASE_URL}/product/${id}`, {
     headers: {
       "content-type": "application/json",

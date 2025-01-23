@@ -1,11 +1,17 @@
-import { DM_Sans } from "@next/font/google";
+import { DM_Sans } from "next/font/google";
+// import { DM_Sans } from "@next/font/google";
 import { Metadata } from "next";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 
+// const dmSans = DM_Sans({
+//   subsets: ["latin"],
+//   weight: ["400", "500", "700"],
+// });
+
 const dmSans = DM_Sans({
-  subsets: ["latin"],
+  subsets: ["latin"], // Ensure this matches your usage
   weight: ["400", "500", "700"],
 });
 

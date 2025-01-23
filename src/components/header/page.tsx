@@ -14,12 +14,7 @@ import { formatPrice } from "@/utils/formatNumber";
 import { AnimatePresence } from "framer-motion";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchProducts,
-  fetchCategories,
-  searchProducts,
-} from "@/api/products.api";
-import { AiFillApple } from "react-icons/ai";
+import { fetchCategories, searchProducts } from "@/api/products.api";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 
 interface Category {
@@ -50,12 +45,12 @@ const Header = () => {
   const searchInputRef = useRef<HTMLDivElement>(null);
   const [searchInput, setSearchInput] = useState("");
 
-  const { data: products, isLoading } = useQuery({
-    queryKey: ["fetchProducts"],
-    queryFn: fetchProducts,
-  });
+  // const { data: products, isLoading } = useQuery({
+  //   queryKey: ["fetchProducts"],
+  //   queryFn: fetchProducts,
+  // });
 
-  const { data: allCategories } = useQuery({
+  const { data: allCategories, isLoading } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
