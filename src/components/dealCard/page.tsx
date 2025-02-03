@@ -15,6 +15,7 @@ interface DealCardProps {
   logo: string;
   badgeColor?: string;
   id: string;
+  featured?: boolean;
   className?: string;
 }
 
@@ -28,6 +29,7 @@ const DealCard = ({
   badgeColor,
   logo,
   id,
+  featured,
   className,
 }: DealCardProps) => {
   const isValidUrl = (url: string) => {
@@ -86,7 +88,9 @@ const DealCard = ({
           // className="object-scale-down opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         />
       </div>
-      <div className="p-4 flex flex-col gap-2 shadow-md">
+      <div
+        className={`p-4 flex flex-col gap-2 shadow-md ${featured && "items-center justify-center"}`}
+      >
         <h3 className="font-medium text-lg line-clamp-2 min-h-[3.5rem]">
           {title.split(" ").map((word, index) => (
             <React.Fragment key={`${title}-${word}-${index}`}>

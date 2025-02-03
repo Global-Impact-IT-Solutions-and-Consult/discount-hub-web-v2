@@ -120,7 +120,7 @@ const ByCategory = () => {
         {allCategories && (
           <>
             {allCategories
-              .slice(0, 6)
+              .slice(0, 6).reverse()
               .map((category: Category, index: number) => {
                 const imageKey = category.category.name
                   .toLowerCase()
