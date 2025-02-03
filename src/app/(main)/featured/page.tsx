@@ -5,22 +5,12 @@ import DealCard from "@/components/dealCard/page";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiFilter, FiX } from "react-icons/fi";
-import {
-  IoChevronDown,
-  IoChevronForward,
-  IoChevronBack,
-} from "react-icons/io5";
+import { IoChevronForward, IoChevronBack } from "react-icons/io5";
 import AtomLoader from "@/components/loader/AtomLoader";
 import { formatPrice } from "@/utils/formatNumber";
-import { useSearchParams } from "next/navigation";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchProducts,
-  fetchCategories,
-  getProductsByTag,
-  getTagById,
-} from "@/api/products.api";
+import { getFeaturedItems } from "@/api/products.api";
 
 interface Product {
   _id: string;
@@ -37,73 +27,24 @@ interface Product {
   discountPrice?: number;
 }
 
-interface Category {
-  category: {
-    name: string;
-  };
-  productCount: number;
-  productsInCategory: Product[];
-}
-
 const ProductsPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState("default");
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [maxPrice, setMaxPrice] = useState(500);
   const [priceRange, setPriceRange] = useState(500);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["fetchProducts"],
-    queryFn: fetchProducts,
+    queryKey: ["featuredItems"],
+    queryFn: getFeaturedItems,
   });
-
-  const { data: allCategories = [] } = useQuery({
-    queryKey: ["fetchCategories"],
-    queryFn: fetchCategories,
-  });
-
-  const searchParams = useSearchParams();
-  const categoryFromUrl = searchParams.get("category");
-  const tagFromUrl = searchParams.get("tag");
-  const tagIdFromUrl = searchParams.get("tagId");
-  const searchQuery = searchParams.get("search");
-
-  // Set initial category from URL
-  useEffect(() => {
-    if (categoryFromUrl) {
-      setSelectedCategory(decodeURIComponent(categoryFromUrl));
-    }
-  }, [categoryFromUrl]);
-
-  // Set initial tag from URL and filter products
-  useEffect(() => {
-    if (tagFromUrl) {
-      const decodedTag = decodeURIComponent(tagFromUrl);
-      setSelectedTag(decodedTag);
-    }
-  }, [tagFromUrl]);
-
-  // Set initial tag from URL and filter products
-  useEffect(() => {
-    if (tagIdFromUrl) {
-      getProductsByTag(tagIdFromUrl).then((products) => {
-        setFilteredProducts(products);
-      });
-      getTagById(tagIdFromUrl).then((tag) => {
-        setSelectedTag(tag.name);
-      });
-    }
-  }, [tagIdFromUrl]);
 
   // Find highest price and set initial products
   useEffect(() => {
     if (products) {
       const highestPrice = Math.max(
-        ...products.map(
+        ...products.items.map(
           (product: Product) => product.discountPrice || product.price
         )
       );
@@ -117,33 +58,7 @@ const ProductsPage = () => {
   // Handle filtering when price range, category, or tag changes
   useEffect(() => {
     if (products) {
-      let filtered = [...products];
-
-      // Apply search filter if query exists
-      if (searchQuery) {
-        filtered = filtered.filter((product) =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-
-      // Apply category filter if selected
-      if (selectedCategory) {
-        const selectedCategoryData = allCategories.find(
-          (cat: Category) => cat.category.name === selectedCategory
-        );
-        if (selectedCategoryData) {
-          filtered = selectedCategoryData.productsInCategory;
-        } else {
-          filtered = filtered.filter(
-            (product) => product.category === selectedCategory
-          );
-        }
-      }
-
-      // Apply tag filter if selected
-      if (selectedTag) {
-        filtered = filtered.filter((product) => product.tag === selectedTag);
-      }
+      let filtered = [...products.items];
 
       // Apply price filter
       filtered = filtered.filter(
@@ -154,21 +69,9 @@ const ProductsPage = () => {
       setFilteredProducts(filtered);
       setCurrentPage(1);
     }
-  }, [
-    priceRange,
-    selectedCategory,
-    selectedTag,
-    products,
-    allCategories,
-    searchQuery,
-  ]);
+  }, [priceRange, products]);
 
   const productsPerPage = 32;
-
-  const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category.category.name);
-    setIsFilterOpen(false);
-  };
 
   const sortedProducts = [...filteredProducts].sort(
     (a: Product, b: Product) => {
@@ -214,14 +117,11 @@ const ProductsPage = () => {
           Home
         </Link>
         <span>/</span>
-        <span className="text-brand-main">Products</span>
+        <span className="text-brand-main">Featured Products</span>
       </nav>
 
       <h1 className="text-3xl sm:text-4xl font-bold capitalize">
-        {selectedTag ||
-          selectedCategory ||
-          (searchQuery && `Showing results for ` + searchQuery) ||
-          "All Products"}
+        {products.tagName || "All Products"}
       </h1>
 
       <div className="pt-4 border-t flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm font-semibold my-4 sm:my-8 gap-4">
@@ -298,63 +198,6 @@ const ProductsPage = () => {
                         <span>{formatPrice(priceRange * 1000)}</span>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col w-full">
-                    <div
-                      onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                      className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
-                    >
-                      <span className="transition-fx group-hover:text-brand-grayish/65">
-                        Categories
-                      </span>
-                      <motion.span
-                        animate={{ rotate: isCategoriesOpen ? 180 : 0 }}
-                        className="text-sm font-normal"
-                      >
-                        <IoChevronDown />
-                      </motion.span>
-                    </div>
-                    <motion.div
-                      initial="collapsed"
-                      animate={isCategoriesOpen ? "open" : "collapsed"}
-                      variants={{
-                        open: { height: "auto", opacity: 1, marginTop: 8 },
-                        collapsed: { height: 0, opacity: 0, marginTop: 0 },
-                      }}
-                      transition={{ duration: 0.3 }}
-                      style={{
-                        maxHeight: "calc(2.5rem * 14)",
-                        overflowY: "auto",
-                      }}
-                      className="overflow-hidden"
-                    >
-                      <div className="flex flex-col gap-4 pl-4 py-2">
-                        {allCategories
-                          ?.filter(
-                            (category: Category) => category.productCount > 0
-                          )
-                          .map((category: Category, index: number) => (
-                            <motion.div
-                              key={index}
-                              initial={{ opacity: 0, y: -20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{
-                                duration: 0.3,
-                                delay: index * 0.05,
-                              }}
-                              onClick={() => handleCategorySelect(category)}
-                              className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
-                            >
-                              <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
-                                {category.category.name} (
-                                {category.productCount})
-                              </span>
-                              <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
-                            </motion.div>
-                          ))}
-                      </div>
-                    </motion.div>
                   </div>
                 </span>
               </span>

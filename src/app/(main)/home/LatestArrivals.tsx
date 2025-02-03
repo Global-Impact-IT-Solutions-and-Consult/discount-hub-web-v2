@@ -26,7 +26,7 @@ const LatestArrivals = () => {
   // const { data: products, isLoading } = useProducts();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["fetchProducts"],
     queryFn: fetchProducts,
   });
 
@@ -34,8 +34,8 @@ const LatestArrivals = () => {
     return <AtomLoader />;
   }
 
-  // Get the latest 4 products
-  const latestProducts = data?.slice(0, 4);
+  // Get the latest 4 products in reverse order before slicing
+  const latestProducts = data?.slice(0, 4).reverse();
 
   return (
     <>

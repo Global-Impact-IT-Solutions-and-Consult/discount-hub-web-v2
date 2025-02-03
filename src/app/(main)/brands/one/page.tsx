@@ -1,26 +1,21 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import DealCard from "@/components/dealCard/page";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiFilter, FiX } from "react-icons/fi";
 import {
-  IoChevronDown,
+  // IoChevronDown,
   IoChevronForward,
   IoChevronBack,
 } from "react-icons/io5";
 import AtomLoader from "@/components/loader/AtomLoader";
 import { formatPrice } from "@/utils/formatNumber";
-import { useSearchParams } from "next/navigation";
-
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchProducts,
-  fetchCategories,
-  getProductsByTag,
-  getTagById,
-} from "@/api/products.api";
+import { getProductsByBrand } from "@/api/products.api";
+// import bg from "@/assets/imgs/categories/categoryBg.jpg";
 
 interface Product {
   _id: string;
@@ -32,78 +27,31 @@ interface Product {
   storeLogo: string;
   description: string;
   badgeColor: string;
-  tag: string;
   images: string[];
   discountPrice?: number;
 }
 
-interface Category {
-  category: {
-    name: string;
-  };
-  productCount: number;
-  productsInCategory: Product[];
-}
-
-const ProductsPage = () => {
+const OneBrand = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState("default");
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [maxPrice, setMaxPrice] = useState(500);
   const [priceRange, setPriceRange] = useState(500);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  const { data: products, isLoading } = useQuery({
-    queryKey: ["fetchProducts"],
-    queryFn: fetchProducts,
-  });
-
-  const { data: allCategories = [] } = useQuery({
-    queryKey: ["fetchCategories"],
-    queryFn: fetchCategories,
-  });
-
   const searchParams = useSearchParams();
-  const categoryFromUrl = searchParams.get("category");
-  const tagFromUrl = searchParams.get("tag");
-  const tagIdFromUrl = searchParams.get("tagId");
-  const searchQuery = searchParams.get("search");
-
-  // Set initial category from URL
-  useEffect(() => {
-    if (categoryFromUrl) {
-      setSelectedCategory(decodeURIComponent(categoryFromUrl));
-    }
-  }, [categoryFromUrl]);
-
-  // Set initial tag from URL and filter products
-  useEffect(() => {
-    if (tagFromUrl) {
-      const decodedTag = decodeURIComponent(tagFromUrl);
-      setSelectedTag(decodedTag);
-    }
-  }, [tagFromUrl]);
-
-  // Set initial tag from URL and filter products
-  useEffect(() => {
-    if (tagIdFromUrl) {
-      getProductsByTag(tagIdFromUrl).then((products) => {
-        setFilteredProducts(products);
-      });
-      getTagById(tagIdFromUrl).then((tag) => {
-        setSelectedTag(tag.name);
-      });
-    }
-  }, [tagIdFromUrl]);
+  const id = searchParams.get("brandId");
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["getProductsByBrand", id],
+    queryFn: getProductsByBrand,
+    enabled: !!id,
+  });
 
   // Find highest price and set initial products
   useEffect(() => {
     if (products) {
       const highestPrice = Math.max(
-        ...products.map(
+        ...products.products.map(
           (product: Product) => product.discountPrice || product.price
         )
       );
@@ -114,36 +62,10 @@ const ProductsPage = () => {
     }
   }, [products]);
 
-  // Handle filtering when price range, category, or tag changes
+  // Handle filtering when price range or category changes
   useEffect(() => {
     if (products) {
-      let filtered = [...products];
-
-      // Apply search filter if query exists
-      if (searchQuery) {
-        filtered = filtered.filter((product) =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-
-      // Apply category filter if selected
-      if (selectedCategory) {
-        const selectedCategoryData = allCategories.find(
-          (cat: Category) => cat.category.name === selectedCategory
-        );
-        if (selectedCategoryData) {
-          filtered = selectedCategoryData.productsInCategory;
-        } else {
-          filtered = filtered.filter(
-            (product) => product.category === selectedCategory
-          );
-        }
-      }
-
-      // Apply tag filter if selected
-      if (selectedTag) {
-        filtered = filtered.filter((product) => product.tag === selectedTag);
-      }
+      let filtered = [...products.products];
 
       // Apply price filter
       filtered = filtered.filter(
@@ -154,21 +76,9 @@ const ProductsPage = () => {
       setFilteredProducts(filtered);
       setCurrentPage(1);
     }
-  }, [
-    priceRange,
-    selectedCategory,
-    selectedTag,
-    products,
-    allCategories,
-    searchQuery,
-  ]);
+  }, [priceRange, products]);
 
   const productsPerPage = 32;
-
-  const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category.category.name);
-    setIsFilterOpen(false);
-  };
 
   const sortedProducts = [...filteredProducts].sort(
     (a: Product, b: Product) => {
@@ -214,15 +124,22 @@ const ProductsPage = () => {
           Home
         </Link>
         <span>/</span>
-        <span className="text-brand-main">Products</span>
+        <Link
+          href="/brands"
+          className="hover:text-brand-main transition-colors"
+        >
+          Brands
+        </Link>
+        <span>/</span>
+        <span className="text-brand-main capitalize">{products?.brand}</span>
       </nav>
 
-      <h1 className="text-3xl sm:text-4xl font-bold capitalize">
-        {selectedTag ||
-          selectedCategory ||
-          (searchQuery && `Showing results for ` + searchQuery) ||
-          "All Products"}
-      </h1>
+      {/* Add a banner Image here, you can use svg or something to make a design then put the category name in the center of the banner, make it like a jumbotron or some hero image */}
+      <div className="w-full p-16 rounded-lg flex items-center justify-center bg-emerald-400 lg:py-32">
+        <h1 className="text-3xl font-bold text-brand-white capitalize sm:text-4xl">
+          {products?.brand || "Brands"}
+        </h1>
+      </div>
 
       <div className="pt-4 border-t flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm font-semibold my-4 sm:my-8 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -299,63 +216,6 @@ const ProductsPage = () => {
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex flex-col w-full">
-                    <div
-                      onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                      className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
-                    >
-                      <span className="transition-fx group-hover:text-brand-grayish/65">
-                        Categories
-                      </span>
-                      <motion.span
-                        animate={{ rotate: isCategoriesOpen ? 180 : 0 }}
-                        className="text-sm font-normal"
-                      >
-                        <IoChevronDown />
-                      </motion.span>
-                    </div>
-                    <motion.div
-                      initial="collapsed"
-                      animate={isCategoriesOpen ? "open" : "collapsed"}
-                      variants={{
-                        open: { height: "auto", opacity: 1, marginTop: 8 },
-                        collapsed: { height: 0, opacity: 0, marginTop: 0 },
-                      }}
-                      transition={{ duration: 0.3 }}
-                      style={{
-                        maxHeight: "calc(2.5rem * 14)",
-                        overflowY: "auto",
-                      }}
-                      className="overflow-hidden"
-                    >
-                      <div className="flex flex-col gap-4 pl-4 py-2">
-                        {allCategories
-                          ?.filter(
-                            (category: Category) => category.productCount > 0
-                          )
-                          .map((category: Category, index: number) => (
-                            <motion.div
-                              key={index}
-                              initial={{ opacity: 0, y: -20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{
-                                duration: 0.3,
-                                delay: index * 0.05,
-                              }}
-                              onClick={() => handleCategorySelect(category)}
-                              className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
-                            >
-                              <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
-                                {category.category.name} (
-                                {category.productCount})
-                              </span>
-                              <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
-                            </motion.div>
-                          ))}
-                      </div>
-                    </motion.div>
-                  </div>
                 </span>
               </span>
             </motion.div>
@@ -419,12 +279,12 @@ const ProductsPage = () => {
   );
 };
 
-// export default ProductsPage;
+// export default OneBrand;
 
 export default function Page() {
   return (
     <Suspense fallback={<AtomLoader />}>
-      <ProductsPage />
+      <OneBrand />
     </Suspense>
   );
 }
