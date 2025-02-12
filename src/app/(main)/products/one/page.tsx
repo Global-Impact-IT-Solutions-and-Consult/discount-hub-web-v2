@@ -124,12 +124,14 @@ const OneProduct = () => {
           <div className="flex items-center gap-2">
             <Image
               src={storeLogo}
-              alt={product?.name || "Store Logo"}
-              width={64}
-              height={64}
-              className="glass-fx absolute top-4 right-4 object-cover z-10 shadow-md"
+              // alt={product?.name || "Store Logo"}
+              alt={"logo"}
+              width={46}
+              height={46}
+              className="glass-fx"
+              // className="glass-fx absolute top-4 right-4 object-cover z-10 shadow-md"
             />
-            <span className="text-sm text-gray-600">{product?.storeName}</span>
+            {/* <span className="text-sm text-gray-600">{product?.storeName}</span> */}
             <div className="flex items-center">
               {Array.from({ length: 5 }, (_, index) => {
                 if (index < rating) {

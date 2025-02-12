@@ -36,6 +36,7 @@ const LatestArrivals = () => {
 
   // Get the latest 4 products in reverse order before slicing
   const latestProducts = data?.slice(0, 4).reverse();
+  console.log("latestProducts: ", latestProducts);
 
   return (
     <>
