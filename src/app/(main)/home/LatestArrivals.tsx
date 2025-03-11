@@ -58,7 +58,7 @@ const LatestArrivals = () => {
               title={product.name || "Untitled Product"}
               price={product.price || 0}
               discountPrice={product.discountPrice}
-              store={product.storeName || "No store available"}
+              store={product.storeName || "No store available."}
               logo={product.storeLogo}
               badgeColor={product.badgeColor}
               id={product._id}
