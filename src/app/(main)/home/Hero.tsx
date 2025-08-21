@@ -16,6 +16,7 @@ import footwear from "@/assets/imgs/categories/footwear.jpg";
 import audio_and_headphones from "@/assets/imgs/categories/audio_and_headphones.jpg";
 import home_decor from "@/assets/imgs/categories/home_decor.jpg";
 import clothing from "@/assets/imgs/categories/clothing.jpg";
+import defaultImage from "@/assets/imgs/landing/jumbotron/bg.jpg";
 
 // Banner
 import beauty_and_cosmetics from "@/assets/imgs/categories/beauty_and_cosmetics_baner.png";
@@ -41,6 +42,9 @@ interface Category {
     name: string;
     title: string;
   };
+  name: string;
+  image: string;
+  productCount: number;
 }
 
 const Hero = () => {
@@ -48,6 +52,8 @@ const Hero = () => {
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
+
+  // console.log("ACTUAL DATA: ", allCategories);
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -124,12 +130,10 @@ const Hero = () => {
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {allCategories?.map((category: Category, index: number) => {
-          const imageKey = category.category.name
-            .toLowerCase()
-            .replace(/\s+/g, "_");
+          const imageKey = category.name.toLowerCase().replace(/\s+/g, "_");
           const categoryImage = imagesMap[imageKey] || null;
           const categoryLink = `/categories/one?category=${encodeURIComponent(
-            category.category.name
+            category.name
           )}`;
 
           return (
@@ -139,8 +143,8 @@ const Hero = () => {
             >
               {/* Slide Image */}
               <Image
-                src={categoryImage}
-                alt={category.category.name}
+                src={categoryImage || defaultImage}
+                alt={category.name || "category image"}
                 fill
                 className="object-cover"
               />
@@ -150,7 +154,7 @@ const Hero = () => {
               <div className="absolute bottom-16 left-8 z-10 text-white">
                 {/* <span className="text-xs">{product.category}</span> */}
                 <h3 className="text-2xl font-bold mb-4 capitalize">
-                  {category.category.name}
+                  {category.name}
                 </h3>
                 <Link href={categoryLink}>
                   <MainButton

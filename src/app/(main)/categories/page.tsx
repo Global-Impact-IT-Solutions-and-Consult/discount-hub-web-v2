@@ -36,6 +36,9 @@ interface Category {
     name: string;
     title: string;
   };
+  name: string;
+  image: string;
+  productCount: number;
 }
 
 // Utility function to get initials from a category name
@@ -116,12 +119,12 @@ const Categories = () => {
           {allCategories && (
             <>
               {allCategories.map((category: Category, index: number) => {
-                const imageKey = category.category.name
+                const imageKey = category.name
                   .toLowerCase()
                   .replace(/\s+/g, "_");
                 const categoryImage = imagesMap[imageKey];
                 const categoryLink = `/categories/one?category=${encodeURIComponent(
-                  category.category.name
+                  category.name
                 )}`;
 
                 // Render categories with images first
@@ -131,25 +134,25 @@ const Categories = () => {
                       key={index}
                       link={categoryLink}
                       image={categoryImage}
-                      title={category.category.name}
+                      title={category.name}
                     />
                   );
                 }
                 return null; // Skip rendering for categories without images
               })}
               {allCategories.map((category: Category, index: number) => {
-                const imageKey = category.category.name
+                const imageKey = category.name
                   .toLowerCase()
                   .replace(/\s+/g, "_");
                 const categoryImage = imagesMap[imageKey];
 
                 // Only render initials for categories without images
                 if (!categoryImage) {
-                  const initials = getInitials(category.category.name);
+                  const initials = getInitials(category.name);
                   const bgColor = getRandomColor();
 
                   const categoryLink = `/categories/one?category=${encodeURIComponent(
-                    category.category.name
+                    category.name
                   )}`;
 
                   return (
@@ -175,7 +178,7 @@ const Categories = () => {
                       </div>
                       <div className="absolute bottom-0 w-full p-4 text-center bg-gradient-to-t from-black/50 to-transparent">
                         <span className="text-white font-medium capitalize">
-                          {category.category.name}
+                          {category.name}
                         </span>
                       </div>
                     </Link>

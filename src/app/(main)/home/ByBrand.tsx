@@ -20,7 +20,7 @@ const ByBrand = () => {
     queryFn: fetchBrands,
   });
 
-  // console.log("🚀 ~ ByBrand ~ allBrands:", allBrands);
+  console.log("🚀 ~ ByBrand ~ allBrands:", allBrands);
 
   if (isLoading) {
     return <AtomLoader />;

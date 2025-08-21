@@ -8,6 +8,7 @@ import AtomLoader from "@/components/loader/AtomLoader";
 import Link from "next/link";
 import Image from "next/image";
 import { IoStar } from "react-icons/io5"; // Importing star icon for rating representation
+import defaultImage from "@/assets/imgs/landing/jumbotron/bg.jpg";
 
 const OneProduct = () => {
   const searchParams = useSearchParams();
@@ -81,7 +82,7 @@ const OneProduct = () => {
         <div className="flex flex-col gap-4">
           <div className="relative h-[400px] w-full border rounded-lg overflow-hidden">
             <Image
-              src={product?.images?.[0] || ""}
+              src={product?.images?.[0] || defaultImage}
               alt={product?.name || "Product Image"}
               fill
               className="object-contain"
@@ -96,7 +97,7 @@ const OneProduct = () => {
                 }`}
               >
                 <Image
-                  src={img}
+                  src={img || defaultImage}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"
@@ -123,7 +124,7 @@ const OneProduct = () => {
           </div>
           <div className="flex items-center gap-2">
             <Image
-              src={storeLogo}
+              src={storeLogo || defaultImage}
               // alt={product?.name || "Store Logo"}
               alt={"logo"}
               width={46}

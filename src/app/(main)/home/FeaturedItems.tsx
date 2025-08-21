@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getFeaturedItems } from "@/api/products.api";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
+import defaultImage from "@/assets/imgs/landing/jumbotron/bg.jpg";
 
 const FeaturedItems = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -72,8 +73,12 @@ const FeaturedItems = () => {
                   transition={{ type: "spring", stiffness: 120, damping: 20 }}
                 >
                   <Image
-                    src={featuredProducts[currentIndex]?.images[0]}
-                    alt={featuredProducts[currentIndex]?.name}
+                    src={
+                      featuredProducts[currentIndex]?.images[0] || defaultImage
+                    }
+                    alt={
+                      featuredProducts[currentIndex]?.name || "Product Image"
+                    }
                     layout="responsive"
                     width={500}
                     height={300}

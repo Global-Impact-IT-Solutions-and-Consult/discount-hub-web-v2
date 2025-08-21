@@ -15,6 +15,8 @@ interface Category {
   category: {
     name: string;
   };
+  name: string;
+  image: string;
   productCount: number;
 }
 
@@ -132,13 +134,15 @@ const Sidebar = ({
                     ?.slice(0, 10)
                     .map((category: Category, index: number) => (
                       <Link
-                        href={`/products?category=${encodeURIComponent(category.category.name)}`}
+                        // href={`/products?category=${encodeURIComponent(category.category.name)}`}
+                        href={`/products?category=${encodeURIComponent(category.name)}`}
                         key={index}
                         onClick={() => setShowSidebar(false)}
                         className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
                       >
                         <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
-                          {category.category.name} ({category.productCount})
+                          {/* {category.category.name} ({category.productCount}) */}
+                          {category.name} ({category.productCount})
                         </span>
                         <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
                       </Link>
@@ -171,13 +175,15 @@ const Sidebar = ({
                         ?.slice(10)
                         .map((category: Category, index: number) => (
                           <Link
-                            href={`/products?category=${encodeURIComponent(category.category.name)}`}
+                            // href={`/products?category=${encodeURIComponent(category.category.name)}`}
+                            href={`/products?category=${encodeURIComponent(category.name)}`}
                             key={index + 10}
                             onClick={() => setShowSidebar(false)}
                             className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
                           >
                             <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
-                              {category.category.name} ({category.productCount})
+                              {/* {category.category.name} ({category.productCount}) */}
+                              {category.name} ({category.productCount})
                             </span>
                             <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
                           </Link>

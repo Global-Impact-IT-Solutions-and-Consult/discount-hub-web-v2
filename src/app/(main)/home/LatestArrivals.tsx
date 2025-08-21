@@ -16,9 +16,14 @@ interface Product {
   name: string;
   price: number;
   images: string[];
-  storeName: string;
-  storeLogo: string;
-  badgeColor: string;
+  store: {
+    name: string;
+    logo: string;
+    badgeColor: string;
+  };
+  // storeName: string;
+  // storeLogo: string;
+  // badgeColor: string;
   discountPrice: number;
 }
 
@@ -58,9 +63,9 @@ const LatestArrivals = () => {
               title={product.name || "Untitled Product"}
               price={product.price || 0}
               discountPrice={product.discountPrice}
-              store={product.storeName || "No store available."}
-              logo={product.storeLogo}
-              badgeColor={product.badgeColor}
+              store={product?.store?.name || "No store available"}
+              logo={product?.store?.logo}
+              badgeColor={product?.store?.badgeColor}
               id={product._id}
             />
           </div>

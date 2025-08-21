@@ -21,6 +21,9 @@ interface Category {
   category: {
     name: string;
   };
+  image: string;
+  name: string;
+  productCount: number;
 }
 
 interface SearchProduct {
@@ -81,11 +84,13 @@ const Header = () => {
         <Link
           key={index}
           href={`/categories/one?category=${encodeURIComponent(
-            category.category.name
+            // category.category.name
+            category.name
           )}`}
           className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
         >
-          {category.category.name}
+          {/* {category.category.name} */}
+          {category.name}
         </Link>
       ))}
       {!showAllCategories && allCategories?.length > 5 && (
@@ -109,7 +114,8 @@ const Header = () => {
               key={index + 5}
               className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
             >
-              {category.category.name}
+              {/* {category.category.name} */}
+              {category.name}
             </div>
           ))}
         </div>

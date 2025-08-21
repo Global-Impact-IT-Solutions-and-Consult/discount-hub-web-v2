@@ -36,6 +36,9 @@ interface Category {
     name: string;
     title: string;
   };
+  name: string;
+  image: string;
+  productCount: number;
 }
 
 // Utility function to get initials from a category name
@@ -114,12 +117,10 @@ const ByCategory = () => {
         </div>
         {categoriesToDisplay.map((category: Category | null, index: number) => {
           if (category) {
-            const imageKey = category.category.name
-              .toLowerCase()
-              .replace(/\s+/g, "_");
+            const imageKey = category.name.toLowerCase().replace(/\s+/g, "_");
             const categoryImage = imagesMap[imageKey];
             const categoryLink = `/categories/one?category=${encodeURIComponent(
-              category.category.name
+              category.name
             )}`;
 
             // Render categories with images first
@@ -129,11 +130,11 @@ const ByCategory = () => {
                   key={index}
                   link={categoryLink}
                   image={categoryImage}
-                  title={category.category.name}
+                  title={category.name}
                 />
               );
             } else {
-              const initials = getInitials(category.category.name);
+              const initials = getInitials(category.name);
               const bgColor = getRandomColor();
 
               return (
@@ -155,7 +156,7 @@ const ByCategory = () => {
                   </div>
                   <div className="absolute bottom-0 w-full p-4 text-center bg-gradient-to-t from-black/50 to-transparent">
                     <span className="text-white font-medium capitalize">
-                      {category.category.name}
+                      {category.name}
                     </span>
                   </div>
                 </Link>
