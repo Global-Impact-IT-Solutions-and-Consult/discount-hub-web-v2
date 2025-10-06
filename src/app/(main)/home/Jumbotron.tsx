@@ -95,11 +95,7 @@ const Jumbotron = () => {
 
   const calculateTimeLeft = () => {
     const now = new Date();
-    const midnight = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() + 1
-    );
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const difference = midnight.getTime() - now.getTime();
 
     const seconds = Math.floor((difference / 1000) % 60);
@@ -117,9 +113,7 @@ const Jumbotron = () => {
     let slideTimer: NodeJS.Timeout;
     if (categories.length > 0) {
       slideTimer = setInterval(() => {
-        setCurrentSlide((prev) =>
-          prev === categories.length - 1 ? 0 : prev + 1
-        );
+        setCurrentSlide((prev) => (prev === categories.length - 1 ? 0 : prev + 1));
       }, 10000);
     }
 
@@ -159,9 +153,7 @@ const Jumbotron = () => {
     return (
       <div className="w-full h-[500px] flex items-center justify-center">
         <div className="text-center p-6 bg-red-50 rounded-lg">
-          <h3 className="text-lg font-medium text-red-800">
-            Error loading featured categories
-          </h3>
+          <h3 className="text-lg font-medium text-red-800">Error loading featured categories</h3>
           <p className="mt-2 text-red-600">Please try again later</p>
         </div>
       </div>
@@ -172,35 +164,26 @@ const Jumbotron = () => {
     return (
       <div className="w-full h-[500px] flex items-center justify-center">
         <div className="text-center p-6 bg-yellow-50 rounded-lg">
-          <h3 className="text-lg font-medium text-yellow-800">
-            No featured categories available
-          </h3>
+          <h3 className="text-lg font-medium text-yellow-800">No featured categories available</h3>
           <p className="mt-2 text-yellow-600">Check back later for updates</p>
         </div>
       </div>
     );
   }
 
-  const latestProducts = data?.items?.slice(0, 4).reverse() || [];
+  // const latestProducts = data?.items?.slice(0, 4).reverse() || [];
 
   return (
     <div className="relative w-full overflow-hidden">
       {/* Slider */}
       <div className="relative w-full h-[500px] overflow-hidden rounded-lg">
-        <div
-          className="flex transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-        >
+        <div className="flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
           {categories.map((category: any, index: number) => {
             const imageKey = category.name.toLowerCase().replace(/\s+/g, "_");
-            const categoryImage =
-              imagesMap[imageKey as keyof typeof imagesMap] || electronics;
+            const categoryImage = imagesMap[imageKey as keyof typeof imagesMap] || electronics;
 
             return (
-              <div
-                key={index}
-                className="relative min-w-full h-[500px] flex items-end bg-gray-400"
-              >
+              <div key={index} className="relative min-w-full h-[500px] flex items-end bg-gray-400">
                 <Image
                   src={categoryImage || defaultImage}
                   // src={category.image || defaultImage}
@@ -210,41 +193,26 @@ const Jumbotron = () => {
                 />
                 <div className="absolute inset-0 bg-black/30" />
                 <div className="absolute bottom-16 left-8 z-10 text-white">
-                  <h3 className="text-2xl font-bold mb-4 capitalize">
-                    {`Get the best deals on ${category.name}`}
-                  </h3>
-                  <Link
-                    href={`/categories/one?category=${encodeURIComponent(category.name)}`}
-                  >
-                    <MainButton
-                      text="View Category"
-                      className="text-white bg-brand-main w-fit border-none py-4 hover:bg-brand-main/80"
-                    />
+                  <h3 className="text-2xl font-bold mb-4 capitalize">{`Get the best deals on ${category.name}`}</h3>
+                  <Link href={`/categories/one?category=${encodeURIComponent(category.name)}`}>
+                    <MainButton text="View Category" className="text-white bg-brand-main w-fit border-none py-4 hover:bg-brand-main/80" />
                   </Link>
                 </div>
                 <div className="absolute bottom-16 right-4 z-10 text-white flex items-center justify-evenly gap-6 lg:right-8">
                   <span className="glass-fx rounded-md flex flex-col items-center justify-center gap-2 text-brand-white p-8 w-16 lg:w-32">
-                    <span className="text-sm font-bold lg:text-2xl">
-                      {timeLeft.days}
-                    </span>
+                    <span className="text-sm font-bold lg:text-2xl">{timeLeft.days}</span>
                     <span className="text-xs">Days</span>
                   </span>
                   <span className="glass-fx rounded-md flex flex-col items-center justify-center gap-2 text-brand-white p-8 w-16 lg:w-32">
-                    <span className="text-sm font-bold lg:text-2xl">
-                      {timeLeft.hours}
-                    </span>
+                    <span className="text-sm font-bold lg:text-2xl">{timeLeft.hours}</span>
                     <span className="text-xs">Hours</span>
                   </span>
                   <span className="glass-fx rounded-md flex flex-col items-center justify-center gap-2 text-brand-white p-8 w-16 lg:w-32">
-                    <span className="text-sm font-bold lg:text-2xl">
-                      {timeLeft.minutes}
-                    </span>
+                    <span className="text-sm font-bold lg:text-2xl">{timeLeft.minutes}</span>
                     <span className="text-xs">Minutes</span>
                   </span>
                   <span className="glass-fx rounded-md flex flex-col items-center justify-center gap-2 text-brand-white p-8 w-16 lg:w-32">
-                    <span className="text-sm font-bold lg:text-2xl">
-                      {timeLeft.seconds}
-                    </span>
+                    <span className="text-sm font-bold lg:text-2xl">{timeLeft.seconds}</span>
                     <span className="text-xs">Seconds</span>
                   </span>
                 </div>
@@ -254,42 +222,14 @@ const Jumbotron = () => {
         </div>
 
         {/* Navigation Buttons */}
-        <button
-          className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/75 p-2 rounded-full z-20"
-          onClick={handlePrevSlide}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5L8.25 12l7.5-7.5"
-            />
+        <button className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/75 p-2 rounded-full z-20" onClick={handlePrevSlide}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
         </button>
-        <button
-          className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/75 p-2 rounded-full z-20"
-          onClick={handleNextSlide}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M8.25 4.5l7.5 7.5-7.5 7.5"
-            />
+        <button className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/50 hover:bg-white/75 p-2 rounded-full z-20" onClick={handleNextSlide}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
           </svg>
         </button>
 
@@ -300,11 +240,7 @@ const Jumbotron = () => {
               <button
                 key={index}
                 onClick={() => handleDotClick(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  currentSlide === index
-                    ? "bg-white scale-125"
-                    : "bg-white/50 hover:bg-white/75"
-                }`}
+                className={`w-3 h-3 rounded-full transition-all ${currentSlide === index ? "bg-white scale-125" : "bg-white/50 hover:bg-white/75"}`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
@@ -313,37 +249,28 @@ const Jumbotron = () => {
       </div>
       {/* Products Grid */}
       <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-6 capitalize">
-          Featured {categories[currentSlide]?.name} Deals
-        </h2>
+        <h2 className="text-2xl font-bold mb-6 capitalize">Featured {categories[currentSlide]?.name} Deals</h2>
         <div className="grid grid-cols-12 gap-6">
           {categories[currentSlide]?.products?.length > 0 ? (
-            categories[currentSlide].products.map(
-              (product: Product) => (
-                <div
-                  key={`product-${product.id}`}
-                  className="col-span-6 sm:col-span-6 lg:col-span-4 xl:col-span-4"
-                >
-                  <DealCard
-                    image={product.images?.[0] || ""}
-                    imagea={product.images?.[1] || product.images?.[0] || ""}
-                    title={product.name || "Untitled Product"}
-                    price={product.price || 0}
-                    discountPrice={product.discountPrice}
-                    // store={product.storeName || "No store available"}
-                    store={product.brand.name || "No store available"}
-                    logo={product.storeLogo}
-                    badgeColor={product.badgeColor}
-                    id={product._id}
-                  />
-                </div>
-              )
-            )
+            categories[currentSlide].products.map((product: Product) => (
+              <div key={`product-${product.id}`} className="col-span-6 sm:col-span-6 lg:col-span-4 xl:col-span-4">
+                <DealCard
+                  image={product.images?.[0] || ""}
+                  imagea={product.images?.[1] || product.images?.[0] || ""}
+                  title={product.name || "Untitled Product"}
+                  price={product.price || 0}
+                  discountPrice={product.discountPrice}
+                  // store={product.storeName || "No store available"}
+                  store={product.brand.name || "No store available"}
+                  logo={product.storeLogo}
+                  badgeColor={product.badgeColor}
+                  id={product._id}
+                />
+              </div>
+            ))
           ) : (
             <div className="col-span-12 text-center py-8">
-              <p className="text-gray-500">
-                No products available in this category
-              </p>
+              <p className="text-gray-500">No products available in this category</p>
             </div>
           )}
         </div>
