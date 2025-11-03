@@ -41,6 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # lockfiles
-package-lock.json
+# package-lock.json
 yarn.lock
 pnpm-lock.yaml
