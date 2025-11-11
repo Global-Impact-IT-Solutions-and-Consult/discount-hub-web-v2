@@ -47,6 +47,7 @@ const FeaturedItems = () => {
     }, 5000); // Change slide every 5 seconds
 
     return () => clearInterval(timer); // Cleanup on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex]);
 
   if (isLoading) {

@@ -84,6 +84,7 @@ const Hero = () => {
     }, 10000); // 10 seconds
 
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePrevSlide = () => {

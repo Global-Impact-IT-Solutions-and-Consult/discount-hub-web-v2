@@ -69,7 +69,7 @@ const ProductsPage = () => {
     queryFn: fetchProducts,
   });
 
-  const { data: categoriesData = [], error: categoriesError } = useQuery({
+  const { data: categoriesData = [] } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
