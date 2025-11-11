@@ -16,12 +16,16 @@ const FeaturedItems = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1); // 1 for right, -1 for left
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["featuredItems"],
     queryFn: getFeaturedItems,
   });
 
-  const featuredProducts = data?.items.slice(0, 4) || [];
+  console.log("🚀 ~ FeaturedItems ~ data:", data);
+  console.log("🚀 ~ FeaturedItems ~ isLoading:", isLoading);
+  console.log("🚀 ~ FeaturedItems ~ error:", error);
+
+  const featuredProducts = data?.items?.slice(0, 4) || [];
 
   const prevSlide = () => {
     setDirection(-1);
@@ -47,6 +51,45 @@ const FeaturedItems = () => {
 
   if (isLoading) {
     return <AtomLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="w-full">
+        <div className="col-span-12 flex items-center justify-between my-8">
+          <span className="text-2xl font-bold capitalize">Featured Items</span>
+          <Link href="/featured">
+            <MainButton text="View All" />
+          </Link>
+        </div>
+        <div className="text-center py-12 bg-gray-100 rounded-lg">
+          <h3 className="text-lg font-medium text-red-800 mb-2">
+            Error loading featured items
+          </h3>
+          <p className="text-red-600">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || !data.items || data.items.length === 0) {
+    return (
+      <div className="w-full">
+        <div className="col-span-12 flex items-center justify-between my-8">
+          <span className="text-2xl font-bold capitalize">Featured Items</span>
+          <Link href="/featured">
+            <MainButton text="View All" />
+          </Link>
+        </div>
+        <div className="text-center py-12 bg-gray-100 rounded-lg">
+          <p className="text-gray-600">
+            No featured items available at the moment.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

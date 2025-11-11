@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useState, useEffect, Suspense, use } from "react";
 import DealCard from "@/components/dealCard/page";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,8 +12,10 @@ import {
 } from "react-icons/io5";
 import AtomLoader from "@/components/loader/AtomLoader";
 import { formatPrice } from "@/utils/formatNumber";
+import { useSearchParams } from "next/navigation";
+
 import { useQuery } from "@tanstack/react-query";
-import { getProductsByBrand } from "@/api/products.api";
+import { fetchProducts, fetchCategories } from "@/api/products.api";
 // import bg from "@/assets/imgs/categories/categoryBg.jpg";
 
 interface Product {
@@ -31,27 +32,57 @@ interface Product {
   discountPrice?: number;
 }
 
-const OneBrand = () => {
+interface Category {
+  _id: string;
+  name: string;
+  productCount: number;
+  products: Product[];
+}
+
+interface ProductsPageProps {
+  params: Promise<{
+    category: string;
+  }>;
+}
+
+const ProductsPage = ({ params }: ProductsPageProps) => {
+  const resolvedParams = use(params);
+  const categoryFromUrl = decodeURIComponent(resolvedParams.category);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState("default");
+  // const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [maxPrice, setMaxPrice] = useState(500);
   const [priceRange, setPriceRange] = useState(500);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  // const [randomColor, setRandomColor] = useState("teal");
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["fetchProducts"],
+    queryFn: fetchProducts,
+  });
+
+  const { data: allCategories = [] } = useQuery({
+    queryKey: ["fetchCategories"],
+    queryFn: fetchCategories,
+  });
 
   const searchParams = useSearchParams();
-  const id = searchParams.get("brandId");
-  const { data: products, isLoading } = useQuery({
-    queryKey: ["getProductsByBrand", id],
-    queryFn: getProductsByBrand,
-    enabled: !!id,
-  });
+  const searchQuery = searchParams.get("search");
+
+  // Set initial category from URL
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
 
   // Find highest price and set initial products
   useEffect(() => {
     if (products) {
       const highestPrice = Math.max(
-        ...products.products.map(
+        ...products.map(
           (product: Product) => product.discountPrice || product.price
         )
       );
@@ -65,7 +96,28 @@ const OneBrand = () => {
   // Handle filtering when price range or category changes
   useEffect(() => {
     if (products) {
-      let filtered = [...products.products];
+      let filtered = [...products];
+
+      // Apply search filter if query exists
+      if (searchQuery) {
+        filtered = filtered.filter((product) =>
+          product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      // Apply category filter if selected
+      if (selectedCategory) {
+        const selectedCategoryData = allCategories.find(
+          (cat: Category) => cat.name === selectedCategory
+        );
+        if (selectedCategoryData && selectedCategoryData.products) {
+          filtered = selectedCategoryData.products;
+        } else {
+          filtered = filtered.filter(
+            (product) => product.category === selectedCategory
+          );
+        }
+      }
 
       // Apply price filter
       filtered = filtered.filter(
@@ -76,9 +128,14 @@ const OneBrand = () => {
       setFilteredProducts(filtered);
       setCurrentPage(1);
     }
-  }, [priceRange, products]);
+  }, [priceRange, selectedCategory, products, allCategories, searchQuery]);
 
   const productsPerPage = 32;
+
+  // const handleCategorySelect = (category: Category) => {
+  //   setSelectedCategory(category.category.name);
+  //   setIsFilterOpen(false);
+  // };
 
   const sortedProducts = [...filteredProducts].sort(
     (a: Product, b: Product) => {
@@ -113,6 +170,40 @@ const OneBrand = () => {
     pageNumbers.push(i);
   }
 
+  // Utility function to generate a random color
+  // const getRandomColor = () => {
+  //   const colors = [
+  //     // "#F8FAFC", // slate-300
+  //     // "#D1D5DB", // gray-300
+  //     // "#D4D4D8", // zinc-300
+  //     // "#D6D3C0", // neutral-300
+  //     // "#D9D9D9", // stone-300
+  //     "#FCA5A1", // red-300
+  //     // "#FBBF24", // orange-300
+  //     "#FBBF24", // amber-300
+  //     // "#FDE047", // yellow-300
+  //     "#A6E3A1", // lime-300
+  //     "#4ADE80", // green-300
+  //     "#34D399", // emerald-300
+  //     "#2DD4BF", // teal-300
+  //     "#22D3EE", // cyan-300
+  //     "#38BDF8", // sky-300
+  //     "#3B82F6", // blue-300
+  //     "#6366F1", // indigo-300
+  //     "#8B5BE5", // violet-300
+  //     "#A855F7", // purple-300
+  //     "#D946EF", // fuchsia-300
+  //     "#F472B6", // pink-300
+  //     "#F43F5E", // rose-300
+  //   ];
+
+  //   return colors[Math.floor(Math.random() * colors.length)];
+  // };
+
+  // useEffect(() => {
+  //   setRandomColor(getRandomColor());
+  // }, [categoryFromUrl]);
+
   if (isLoading) {
     return <AtomLoader />;
   }
@@ -125,21 +216,34 @@ const OneBrand = () => {
         </Link>
         <span>/</span>
         <Link
-          href="/brands"
+          href="/categories"
           className="hover:text-brand-main transition-colors"
         >
-          Brands
+          Categories
         </Link>
         <span>/</span>
-        <span className="text-brand-main capitalize">{products?.brand}</span>
+        <span className="text-brand-main capitalize">{selectedCategory}</span>
       </nav>
 
       {/* Add a banner Image here, you can use svg or something to make a design then put the category name in the center of the banner, make it like a jumbotron or some hero image */}
-      <div className="w-full p-16 rounded-lg flex items-center justify-center bg-emerald-400 lg:py-32">
+      <div
+        className="w-full p-16 rounded-lg flex items-center justify-center bg-emerald-400 lg:py-32"
+        // style={{
+        //   backgroundImage: `url(${bg})`,
+        //   backgroundSize: "cover",
+        //   backgroundPosition: "center",
+        //   opacity: 0.8, // Adjust transparency here
+        //   backgroundColor: randomColor,
+        // }}
+      >
         <h1 className="text-3xl font-bold text-brand-white capitalize sm:text-4xl">
-          {products?.brand || "Brands"}
+          {selectedCategory}
         </h1>
       </div>
+
+      {/* <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+        {selectedCategory}
+      </h1> */}
 
       <div className="pt-4 border-t flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm font-semibold my-4 sm:my-8 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -279,12 +383,12 @@ const OneBrand = () => {
   );
 };
 
-// export default OneBrand;
+// export default ProductsPage;
 
-export default function Page() {
+export default function Page({ params }: ProductsPageProps) {
   return (
     <Suspense fallback={<AtomLoader />}>
-      <OneBrand />
+      <ProductsPage params={params} />
     </Suspense>
   );
 }

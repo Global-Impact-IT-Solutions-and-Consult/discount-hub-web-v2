@@ -32,10 +32,7 @@ import AtomLoader from "@/components/loader/AtomLoader";
 import { StaticImageData } from "next/image";
 
 interface Category {
-  category: {
-    name: string;
-    title: string;
-  };
+  _id: string;
   name: string;
   image: string;
   productCount: number;
@@ -66,12 +63,18 @@ const getRandomColor = () => {
 };
 
 const Categories = () => {
-  const { data: allCategories, isLoading } = useQuery({
+  const {
+    data: allCategories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
 
-  // console.log("🚀 ~ Categories ~ allCategories:", allCategories);
+  console.log("🚀 ~ Categories ~ allCategories:", allCategories);
+  console.log("🚀 ~ Categories ~ isLoading:", isLoading);
+  console.log("🚀 ~ Categories ~ error:", error);
 
   const imagesMap: Record<string, StaticImageData> = {
     electronics,
@@ -101,6 +104,53 @@ const Categories = () => {
     return <AtomLoader />;
   }
 
+  if (error) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Categories</span>
+        </nav>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Error Loading Categories
+          </h2>
+          <p className="text-gray-600">
+            Failed to load categories. Please try again later.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!allCategories || allCategories.length === 0) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Categories</span>
+        </nav>
+        <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+          {"All Categories"}
+        </h1>
+        <div className="text-center py-12">
+          <p className="text-gray-600">
+            No categories available at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col gap-4 sm:gap-8">
@@ -123,7 +173,7 @@ const Categories = () => {
                   .toLowerCase()
                   .replace(/\s+/g, "_");
                 const categoryImage = imagesMap[imageKey];
-                const categoryLink = `/categories/one?category=${encodeURIComponent(
+                const categoryLink = `/categories/${encodeURIComponent(
                   category.name
                 )}`;
 
@@ -151,7 +201,7 @@ const Categories = () => {
                   const initials = getInitials(category.name);
                   const bgColor = getRandomColor();
 
-                  const categoryLink = `/categories/one?category=${encodeURIComponent(
+                  const categoryLink = `/categories/${encodeURIComponent(
                     category.name
                   )}`;
 
@@ -160,7 +210,6 @@ const Categories = () => {
                       key={index}
                       className="relative col-span-6 md:col-span-4 lg:col-span-2 h-48 overflow-hidden rounded-lg group cursor-pointer"
                       href={categoryLink}
-                      target="_blank"
                     >
                       <div
                         // className="relative col-span-6 h-48 overflow-hidden rounded-lg group cursor-pointer flex items-center justify-center md:col-span-4 lg:col-span-2 "
@@ -169,12 +218,9 @@ const Categories = () => {
                           backgroundColor: bgColor,
                         }}
                       >
-                        <Link
-                          href={categoryLink}
-                          className="text-white text-4xl text-center font-bold"
-                        >
+                        <span className="text-white text-4xl text-center font-bold">
                           {initials}
-                        </Link>
+                        </span>
                       </div>
                       <div className="absolute bottom-0 w-full p-4 text-center bg-gradient-to-t from-black/50 to-transparent">
                         <span className="text-white font-medium capitalize">

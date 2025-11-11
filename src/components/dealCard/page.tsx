@@ -47,7 +47,7 @@ const DealCard = ({
 
   return (
     <Link
-      href={`/products/one?id=${id}`}
+      href={`/products/${id}`}
       className={twMerge(
         "relative col-span-6 overflow-hidden rounded-lg group cursor-pointer lg:col-span-3",
         className

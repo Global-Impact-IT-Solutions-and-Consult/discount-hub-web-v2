@@ -32,10 +32,7 @@ import { StaticImageData } from "next/image";
 import AtomLoader from "@/components/loader/AtomLoader";
 
 interface Category {
-  category: {
-    name: string;
-    title: string;
-  };
+  _id: string;
   name: string;
   image: string;
   productCount: number;
@@ -66,10 +63,18 @@ const getRandomColor = () => {
 };
 
 const ByCategory = () => {
-  const { data: allCategories, isLoading } = useQuery({
+  const {
+    data: allCategories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
+
+  console.log("🚀 ~ ByCategory ~ allCategories:", allCategories);
+  console.log("🚀 ~ ByCategory ~ isLoading:", isLoading);
+  console.log("🚀 ~ ByCategory ~ error:", error);
 
   const imagesMap: Record<string, StaticImageData> = {
     electronics,
@@ -99,6 +104,43 @@ const ByCategory = () => {
     return <AtomLoader />;
   }
 
+  if (error) {
+    return (
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12 flex items-center justify-between">
+          <span className="text-2xl font-bold">Shop by category</span>
+          <Link href="/categories">
+            <MainButton text="View All" />
+          </Link>
+        </div>
+        <div className="col-span-12 text-center py-8">
+          <p className="text-red-600">Failed to load categories</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!allCategories || allCategories.length === 0) {
+    return (
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12 flex items-center justify-between">
+          <span className="text-2xl font-bold">Shop by category</span>
+          <Link href="/categories">
+            <MainButton text="View All" />
+          </Link>
+        </div>
+        <div className="col-span-12 text-center py-8">
+          <p className="text-gray-600">
+            No categories available at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Ensure we always have 6 cards
   const categoriesToDisplay = allCategories
     ? allCategories.slice(0, 6).reverse()
@@ -119,7 +161,7 @@ const ByCategory = () => {
           if (category) {
             const imageKey = category.name.toLowerCase().replace(/\s+/g, "_");
             const categoryImage = imagesMap[imageKey];
-            const categoryLink = `/categories/one?category=${encodeURIComponent(
+            const categoryLink = `/categories/${encodeURIComponent(
               category.name
             )}`;
 

@@ -38,22 +38,25 @@ import kitchenware from "@/assets/imgs/categories/kitchenware_banner_1.jpg";
 import beverages from "@/assets/imgs/categories/beverages_banner.png";
 
 interface Category {
-  category: {
-    name: string;
-    title: string;
-  };
+  _id: string;
   name: string;
   image: string;
   productCount: number;
 }
 
 const Hero = () => {
-  const { data: allCategories, isLoading } = useQuery({
+  const {
+    data: allCategories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
 
-  // console.log("ACTUAL DATA: ", allCategories);
+  console.log("🚀 ~ Hero ~ allCategories:", allCategories);
+  console.log("🚀 ~ Hero ~ isLoading:", isLoading);
+  console.log("🚀 ~ Hero ~ error:", error);
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -123,6 +126,31 @@ const Hero = () => {
     return <AtomLoader />;
   }
 
+  if (error) {
+    return (
+      <div className="w-full h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
+        <div className="text-center p-6">
+          <h3 className="text-lg font-medium text-red-800 mb-2">
+            Error loading hero section
+          </h3>
+          <p className="text-red-600">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!allCategories || allCategories.length === 0) {
+    return (
+      <div className="w-full h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
+        <div className="text-center p-6">
+          <p className="text-gray-600">No categories available for display</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-[500px] overflow-hidden rounded-lg">
       <div
@@ -132,7 +160,7 @@ const Hero = () => {
         {allCategories?.map((category: Category, index: number) => {
           const imageKey = category.name.toLowerCase().replace(/\s+/g, "_");
           const categoryImage = imagesMap[imageKey] || null;
-          const categoryLink = `/categories/one?category=${encodeURIComponent(
+          const categoryLink = `/categories/${encodeURIComponent(
             category.name
           )}`;
 

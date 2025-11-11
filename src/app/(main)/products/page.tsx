@@ -42,13 +42,11 @@ interface Product {
 }
 
 interface Category {
-  category: {
-    name: string;
-  };
+  _id: string;
   name: string;
   image: string;
   productCount: number;
-  productsInCategory: Product[];
+  products: Product[];
 }
 
 const ProductsPage = () => {
@@ -62,15 +60,24 @@ const ProductsPage = () => {
   const [selectedTag, setSelectedTag] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  const { data: products, isLoading } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchProducts"],
     queryFn: fetchProducts,
   });
 
-  const { data: categoriesData = [] } = useQuery({
+  const { data: categoriesData = [], error: categoriesError } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
+
+  console.log("🚀 ~ ProductsPage ~ products:", products);
+  console.log("🚀 ~ ProductsPage ~ isLoading:", isLoading);
+  console.log("🚀 ~ ProductsPage ~ error:", error);
+  console.log("🚀 ~ ProductsPage ~ categoriesData:", categoriesData);
 
   // Memoize the categories to prevent unnecessary re-renders
   const allCategories = React.useMemo(() => categoriesData, [categoriesData]);
@@ -144,8 +151,8 @@ const ProductsPage = () => {
         const selectedCategoryData = allCategories.find(
           (cat: Category) => cat.name === selectedCategory
         );
-        if (selectedCategoryData?.productsInCategory) {
-          filtered = selectedCategoryData.productsInCategory;
+        if (selectedCategoryData?.products) {
+          filtered = selectedCategoryData.products;
         } else {
           filtered = filtered.filter(
             (product) => product.category === selectedCategory
@@ -229,6 +236,86 @@ const ProductsPage = () => {
 
   if (isLoading) {
     return <AtomLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Products</span>
+        </nav>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Error Loading Products
+          </h2>
+          <p className="text-gray-600">
+            Failed to load products. Please try again later.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Products</span>
+        </nav>
+        <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+          All Products
+        </h1>
+        <div className="text-center py-12">
+          <p className="text-gray-600">No products available at the moment.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (filteredProducts.length === 0 && !isLoading) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Products</span>
+        </nav>
+        <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+          {selectedTag ||
+            selectedCategory ||
+            (searchQuery && `Showing results for ` + searchQuery) ||
+            "All Products"}
+        </h1>
+        <div className="text-center py-12">
+          <p className="text-gray-600">
+            No products found matching your criteria.
+          </p>
+          <button
+            onClick={() => {
+              setSelectedCategory("");
+              setSelectedTag("");
+              setPriceRange(maxPrice);
+            }}
+            className="mt-4 px-6 py-2 bg-brand-main text-white rounded-md hover:bg-brand-main/80 transition-colors"
+          >
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,8 +1,7 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, use } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
 import { fetchProductById } from "@/api/products.api";
 import AtomLoader from "@/components/loader/AtomLoader";
 import Link from "next/link";
@@ -10,9 +9,15 @@ import Image from "next/image";
 import { IoStar } from "react-icons/io5"; // Importing star icon for rating representation
 import defaultImage from "@/assets/imgs/landing/jumbotron/bg.jpg";
 
-const OneProduct = () => {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+interface OneProductProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+const OneProduct = ({ params }: OneProductProps) => {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
   const { data: product, isLoading } = useQuery({
     queryKey: ["fetchProductById", id],
     queryFn: fetchProductById,
@@ -233,10 +238,10 @@ const OneProduct = () => {
   );
 };
 
-export default function Page() {
+export default function Page({ params }: OneProductProps) {
   return (
     <Suspense fallback={<AtomLoader />}>
-      <OneProduct />
+      <OneProduct params={params} />
     </Suspense>
   );
 }

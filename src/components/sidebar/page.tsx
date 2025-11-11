@@ -10,11 +10,10 @@ import Link from "next/link";
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchCategories, fetchBrands } from "@/api/products.api";
+import AtomLoader from "@/components/loader/AtomLoader";
 
 interface Category {
-  category: {
-    name: string;
-  };
+  _id: string;
   name: string;
   image: string;
   productCount: number;
@@ -38,15 +37,30 @@ const Sidebar = ({
   const [showAllBrands, setShowAllBrands] = useState(false);
   // const { data: allCategories = [] } = useCategories(); // Removed isLoading since it's not being used
 
-  const { data: allCategories } = useQuery({
+  const {
+    data: allCategories,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
 
-  const { data: allBrands } = useQuery({
+  const {
+    data: allBrands,
+    isLoading: brandsLoading,
+    error: brandsError,
+  } = useQuery({
     queryKey: ["fetchBrands"],
     queryFn: fetchBrands,
   });
+
+  console.log("🚀 ~ Sidebar ~ allCategories:", allCategories);
+  console.log("🚀 ~ Sidebar ~ categoriesLoading:", categoriesLoading);
+  console.log("🚀 ~ Sidebar ~ categoriesError:", categoriesError);
+  console.log("🚀 ~ Sidebar ~ allBrands:", allBrands);
+  console.log("🚀 ~ Sidebar ~ brandsLoading:", brandsLoading);
+  console.log("🚀 ~ Sidebar ~ brandsError:", brandsError);
 
   // Reset states when sidebar or dropdown closes
   useEffect(() => {
@@ -129,24 +143,52 @@ const Sidebar = ({
                 <div
                   className={`flex flex-col gap-4 pl-4 py-2 ${showAllCategories ? "border-b border-gray-200" : ""}`}
                 >
-                  {allCategories
-                    ?.filter((category: Category) => category.productCount > 0)
-                    ?.slice(0, 10)
-                    .map((category: Category, index: number) => (
-                      <Link
-                        // href={`/products?category=${encodeURIComponent(category.category.name)}`}
-                        href={`/products?category=${encodeURIComponent(category.name)}`}
-                        key={index}
-                        onClick={() => setShowSidebar(false)}
-                        className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
-                      >
-                        <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
-                          {/* {category.category.name} ({category.productCount}) */}
-                          {category.name} ({category.productCount})
-                        </span>
-                        <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
-                      </Link>
-                    ))}
+                  {categoriesLoading && (
+                    <div className="text-center py-4">
+                      <AtomLoader />
+                    </div>
+                  )}
+                  {categoriesError && (
+                    <div className="text-center py-4">
+                      <p className="text-xs text-red-600">
+                        Failed to load categories
+                      </p>
+                    </div>
+                  )}
+                  {!categoriesLoading &&
+                    !categoriesError &&
+                    allCategories &&
+                    allCategories.length > 0 &&
+                    allCategories
+                      ?.filter(
+                        (category: Category) => category.productCount > 0
+                      )
+                      ?.slice(0, 10)
+                      .map((category: Category, index: number) => (
+                        <Link
+                          // href={`/products?category=${encodeURIComponent(category.category.name)}`}
+                          href={`/products?category=${encodeURIComponent(category.name)}`}
+                          key={index}
+                          onClick={() => setShowSidebar(false)}
+                          className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
+                        >
+                          <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
+                            {/* {category.category.name} ({category.productCount}) */}
+                            {category.name} ({category.productCount})
+                          </span>
+                          <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
+                        </Link>
+                      ))}
+                  {!categoriesLoading &&
+                    !categoriesError &&
+                    allCategories &&
+                    allCategories.length === 0 && (
+                      <div className="text-center py-4">
+                        <p className="text-xs text-gray-600">
+                          No categories available
+                        </p>
+                      </div>
+                    )}
                   {!showAllCategories &&
                     allCategories?.filter(
                       (category: Category) => category.productCount > 0
@@ -226,21 +268,47 @@ const Sidebar = ({
                 <div
                   className={`flex flex-col gap-4 pl-4 py-2 ${showAllCategories ? "border-b border-gray-200" : ""}`}
                 >
-                  {allBrands
-                    ?.slice(0, 10)
-                    .map((brand: Brand, index: number) => (
-                      <Link
-                        href={`/brands/one?brandId=${brand._id}`}
-                        key={index}
-                        onClick={() => setShowSidebar(false)}
-                        className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
-                      >
-                        <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
-                          {brand.name}
-                        </span>
-                        <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
-                      </Link>
-                    ))}
+                  {brandsLoading && (
+                    <div className="text-center py-4">
+                      <AtomLoader />
+                    </div>
+                  )}
+                  {brandsError && (
+                    <div className="text-center py-4">
+                      <p className="text-xs text-red-600">
+                        Failed to load brands
+                      </p>
+                    </div>
+                  )}
+                  {!brandsLoading &&
+                    !brandsError &&
+                    allBrands &&
+                    allBrands.length > 0 &&
+                    allBrands
+                      ?.slice(0, 10)
+                      .map((brand: Brand, index: number) => (
+                        <Link
+                          href={`/brands/${brand._id}`}
+                          key={index}
+                          onClick={() => setShowSidebar(false)}
+                          className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
+                        >
+                          <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
+                            {brand.name}
+                          </span>
+                          <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
+                        </Link>
+                      ))}
+                  {!brandsLoading &&
+                    !brandsError &&
+                    allBrands &&
+                    allBrands.length === 0 && (
+                      <div className="text-center py-4">
+                        <p className="text-xs text-gray-600">
+                          No brands available
+                        </p>
+                      </div>
+                    )}
                   {!showAllBrands && allBrands?.length > 10 && (
                     <motion.div
                       initial={{ opacity: 0, y: -20 }}
@@ -263,7 +331,7 @@ const Sidebar = ({
                         ?.slice(10)
                         .map((brand: Brand, index: number) => (
                           <Link
-                            href={`/brands/one?brandId=${brand._id}`}
+                            href={`/brands/${brand._id}`}
                             key={index + 10}
                             onClick={() => setShowSidebar(false)}
                             className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
