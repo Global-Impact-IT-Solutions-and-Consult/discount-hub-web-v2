@@ -23,9 +23,9 @@ interface Product {
 }
 
 interface Category {
-  category: {
-    name: string;
-  };
+  _id: string;
+  name: string;
+  productCount: number;
 }
 
 interface Store {

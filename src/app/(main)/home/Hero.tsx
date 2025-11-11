@@ -16,6 +16,7 @@ import footwear from "@/assets/imgs/categories/footwear.jpg";
 import audio_and_headphones from "@/assets/imgs/categories/audio_and_headphones.jpg";
 import home_decor from "@/assets/imgs/categories/home_decor.jpg";
 import clothing from "@/assets/imgs/categories/clothing.jpg";
+import defaultImage from "@/assets/imgs/landing/jumbotron/bg.jpg";
 
 // Banner
 import beauty_and_cosmetics from "@/assets/imgs/categories/beauty_and_cosmetics_baner.png";
@@ -37,17 +38,25 @@ import kitchenware from "@/assets/imgs/categories/kitchenware_banner_1.jpg";
 import beverages from "@/assets/imgs/categories/beverages_banner.png";
 
 interface Category {
-  category: {
-    name: string;
-    title: string;
-  };
+  _id: string;
+  name: string;
+  image: string;
+  productCount: number;
 }
 
 const Hero = () => {
-  const { data: allCategories, isLoading } = useQuery({
+  const {
+    data: allCategories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
+
+  console.log("🚀 ~ Hero ~ allCategories:", allCategories);
+  console.log("🚀 ~ Hero ~ isLoading:", isLoading);
+  console.log("🚀 ~ Hero ~ error:", error);
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -117,6 +126,31 @@ const Hero = () => {
     return <AtomLoader />;
   }
 
+  if (error) {
+    return (
+      <div className="w-full h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
+        <div className="text-center p-6">
+          <h3 className="text-lg font-medium text-red-800 mb-2">
+            Error loading hero section
+          </h3>
+          <p className="text-red-600">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!allCategories || allCategories.length === 0) {
+    return (
+      <div className="w-full h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
+        <div className="text-center p-6">
+          <p className="text-gray-600">No categories available for display</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-[500px] overflow-hidden rounded-lg">
       <div
@@ -124,12 +158,10 @@ const Hero = () => {
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {allCategories?.map((category: Category, index: number) => {
-          const imageKey = category.category.name
-            .toLowerCase()
-            .replace(/\s+/g, "_");
+          const imageKey = category.name.toLowerCase().replace(/\s+/g, "_");
           const categoryImage = imagesMap[imageKey] || null;
-          const categoryLink = `/categories/one?category=${encodeURIComponent(
-            category.category.name
+          const categoryLink = `/categories/${encodeURIComponent(
+            category.name
           )}`;
 
           return (
@@ -139,8 +171,8 @@ const Hero = () => {
             >
               {/* Slide Image */}
               <Image
-                src={categoryImage}
-                alt={category.category.name}
+                src={categoryImage || defaultImage}
+                alt={category.name || "category image"}
                 fill
                 className="object-cover"
               />
@@ -150,7 +182,7 @@ const Hero = () => {
               <div className="absolute bottom-16 left-8 z-10 text-white">
                 {/* <span className="text-xs">{product.category}</span> */}
                 <h3 className="text-2xl font-bold mb-4 capitalize">
-                  {category.category.name}
+                  {category.name}
                 </h3>
                 <Link href={categoryLink}>
                   <MainButton

@@ -18,9 +18,10 @@ import { fetchCategories, searchProducts } from "@/api/products.api";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 
 interface Category {
-  category: {
-    name: string;
-  };
+  _id: string;
+  name: string;
+  image: string;
+  productCount: number;
 }
 
 interface SearchProduct {
@@ -50,10 +51,18 @@ const Header = () => {
   //   queryFn: fetchProducts,
   // });
 
-  const { data: allCategories, isLoading } = useQuery({
+  const {
+    data: allCategories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
+
+  console.log("🚀 ~ Header ~ allCategories:", allCategories);
+  console.log("🚀 ~ Header ~ isLoading:", isLoading);
+  console.log("🚀 ~ Header ~ error:", error);
 
   // Reset showAllCategories when dropdown closes
   const handleDropdownClose = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -80,12 +89,14 @@ const Header = () => {
       {allCategories?.slice(0, 5).map((category: Category, index: number) => (
         <Link
           key={index}
-          href={`/categories/one?category=${encodeURIComponent(
-            category.category.name
+          href={`/categories/${encodeURIComponent(
+            // category.category.name
+            category.name
           )}`}
           className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
         >
-          {category.category.name}
+          {/* {category.category.name} */}
+          {category.name}
         </Link>
       ))}
       {!showAllCategories && allCategories?.length > 5 && (
@@ -109,7 +120,8 @@ const Header = () => {
               key={index + 5}
               className="transition-fx text-brand-dark px-4 py-2 text-sm cursor-pointer border-b-2 border-gray-200 hover:text-brand-grayish/65"
             >
-              {category.category.name}
+              {/* {category.category.name} */}
+              {category.name}
             </div>
           ))}
         </div>

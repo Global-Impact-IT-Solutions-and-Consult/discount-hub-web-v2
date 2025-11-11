@@ -28,21 +28,25 @@ interface Product {
   name: string;
   price: number;
   category: string;
-  storeName: string;
-  storeLogo: string;
+  store: {
+    name: string;
+    logo: string;
+    badgeColor: string;
+  };
+  // storeLogo: string;
+  // badgeColor: string;
   description: string;
-  badgeColor: string;
   tag: string;
   images: string[];
   discountPrice?: number;
 }
 
 interface Category {
-  category: {
-    name: string;
-  };
+  _id: string;
+  name: string;
+  image: string;
   productCount: number;
-  productsInCategory: Product[];
+  products: Product[];
 }
 
 const ProductsPage = () => {
@@ -56,15 +60,27 @@ const ProductsPage = () => {
   const [selectedTag, setSelectedTag] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  const { data: products, isLoading } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchProducts"],
     queryFn: fetchProducts,
   });
 
-  const { data: allCategories = [] } = useQuery({
+  const { data: categoriesData = [], error: categoriesError } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
+
+  console.log("🚀 ~ ProductsPage ~ products:", products);
+  console.log("🚀 ~ ProductsPage ~ isLoading:", isLoading);
+  console.log("🚀 ~ ProductsPage ~ error:", error);
+  console.log("🚀 ~ ProductsPage ~ categoriesData:", categoriesData);
+
+  // Memoize the categories to prevent unnecessary re-renders
+  const allCategories = React.useMemo(() => categoriesData, [categoriesData]);
 
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("category");
@@ -116,23 +132,27 @@ const ProductsPage = () => {
 
   // Handle filtering when price range, category, or tag changes
   useEffect(() => {
-    if (products) {
+    if (!products) return;
+
+    // Create a stable reference for the filter function
+    const filterProducts = () => {
       let filtered = [...products];
 
       // Apply search filter if query exists
       if (searchQuery) {
+        const query = searchQuery.toLowerCase();
         filtered = filtered.filter((product) =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase())
+          product.name.toLowerCase().includes(query)
         );
       }
 
       // Apply category filter if selected
       if (selectedCategory) {
         const selectedCategoryData = allCategories.find(
-          (cat: Category) => cat.category.name === selectedCategory
+          (cat: Category) => cat.name === selectedCategory
         );
-        if (selectedCategoryData) {
-          filtered = selectedCategoryData.productsInCategory;
+        if (selectedCategoryData?.products) {
+          filtered = selectedCategoryData.products;
         } else {
           filtered = filtered.filter(
             (product) => product.category === selectedCategory
@@ -146,12 +166,21 @@ const ProductsPage = () => {
       }
 
       // Apply price filter
+      const maxPrice = priceRange * 1000;
       filtered = filtered.filter(
-        (product) =>
-          (product.discountPrice || product.price) <= priceRange * 1000
+        (product) => (product.discountPrice || product.price) <= maxPrice
       );
 
-      setFilteredProducts(filtered);
+      return filtered;
+    };
+
+    const newFilteredProducts = filterProducts();
+
+    // Only update state if products actually changed
+    if (
+      JSON.stringify(newFilteredProducts) !== JSON.stringify(filteredProducts)
+    ) {
+      setFilteredProducts(newFilteredProducts);
       setCurrentPage(1);
     }
   }, [
@@ -161,12 +190,13 @@ const ProductsPage = () => {
     products,
     allCategories,
     searchQuery,
+    filteredProducts, // Add filteredProducts to dependencies for comparison
   ]);
 
   const productsPerPage = 32;
 
   const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category.category.name);
+    setSelectedCategory(category.name);
     setIsFilterOpen(false);
   };
 
@@ -189,6 +219,7 @@ const ProductsPage = () => {
   const startIndex = (currentPage - 1) * productsPerPage;
   const endIndex = startIndex + productsPerPage;
   const currentProducts = sortedProducts.slice(startIndex, endIndex);
+  console.log({ currentProducts });
 
   const pageNumbers = [];
   const maxVisiblePages = 5;
@@ -205,6 +236,86 @@ const ProductsPage = () => {
 
   if (isLoading) {
     return <AtomLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Products</span>
+        </nav>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Error Loading Products
+          </h2>
+          <p className="text-gray-600">
+            Failed to load products. Please try again later.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Products</span>
+        </nav>
+        <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+          All Products
+        </h1>
+        <div className="text-center py-12">
+          <p className="text-gray-600">No products available at the moment.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (filteredProducts.length === 0 && !isLoading) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Products</span>
+        </nav>
+        <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+          {selectedTag ||
+            selectedCategory ||
+            (searchQuery && `Showing results for ` + searchQuery) ||
+            "All Products"}
+        </h1>
+        <div className="text-center py-12">
+          <p className="text-gray-600">
+            No products found matching your criteria.
+          </p>
+          <button
+            onClick={() => {
+              setSelectedCategory("");
+              setSelectedTag("");
+              setPriceRange(maxPrice);
+            }}
+            className="mt-4 px-6 py-2 bg-brand-main text-white rounded-md hover:bg-brand-main/80 transition-colors"
+          >
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -347,8 +458,7 @@ const ProductsPage = () => {
                               className="group text-brand-dark text-sm font-semibold flex items-center justify-between lg:text-base cursor-pointer"
                             >
                               <span className="transition-fx text-xs text-brand-dark font-semibold capitalize group-hover:text-brand-grayish/65">
-                                {category.category.name} (
-                                {category.productCount})
+                                {category.name} ({category.productCount})
                               </span>
                               <IoChevronForward className="transition-fx text-sm font-normal -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" />
                             </motion.div>
@@ -375,9 +485,9 @@ const ProductsPage = () => {
               title={product.name || "Untitled Product"}
               price={product.price || 0}
               discountPrice={product.discountPrice}
-              store={product.storeName || "No store available"}
-              logo={product.storeLogo}
-              badgeColor={product.badgeColor}
+              store={product?.store?.name || "No store available"}
+              logo={product?.store?.logo}
+              badgeColor={product?.store?.badgeColor}
               id={product._id}
             />
           </div>

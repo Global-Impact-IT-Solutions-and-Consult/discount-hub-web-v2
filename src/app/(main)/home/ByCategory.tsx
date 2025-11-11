@@ -32,53 +32,49 @@ import { StaticImageData } from "next/image";
 import AtomLoader from "@/components/loader/AtomLoader";
 
 interface Category {
-  category: {
-    name: string;
-    title: string;
-  };
+  _id: string;
+  name: string;
+  image: string;
+  productCount: number;
 }
 
-const ByCategory = () => {
-  // const categories = [
-  //   {
-  //     image: electronics,
-  //     title: "Electronics",
-  //     link: "/products?category=electronics",
-  //   },
-  //   {
-  //     image: home_appliances,
-  //     title: "Home Appliances",
-  //     link: "/products?category=home%20appliances",
-  //   },
-  //   {
-  //     image: furnitures,
-  //     title: "Furnitures",
-  //     link: "/products?category=furnitures",
-  //   },
-  //   {
-  //     image: fashion,
-  //     title: "Fashion",
-  //     link: "/products?category=fashion",
-  //   },
-  //   {
-  //     image: health_and_beauty,
-  //     title: "Health and Beauty",
-  //     // link: "/products?category=health%20and%20beauty",
-  //     link: `/products?category=${"health and beauty"}`,
-  //   },
-  //   {
-  //     image: phones_and_tablets,
-  //     title: "Phones and Tablets",
-  //     link: "/products?category=phones%20and%20tablets",
-  //   },
-  // ];
+// Utility function to get initials from a category name
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+};
 
-  const { data: allCategories, isLoading } = useQuery({
+// Utility function to generate a random color
+const getRandomColor = () => {
+  const colors = [
+    "#C0A500",
+    "#D03E00",
+    "#1A7FBB",
+    "#2E8B2D",
+    "#D0127A",
+    "#8B5A2B",
+    "#6A5ACD",
+    "#FF8C00",
+    "#4682B4",
+  ]; // More muted and additional colors
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
+const ByCategory = () => {
+  const {
+    data: allCategories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
 
-  // console.log("🚀 ~ Categories ~ allCategories:", allCategories);
+  console.log("🚀 ~ ByCategory ~ allCategories:", allCategories);
+  console.log("🚀 ~ ByCategory ~ isLoading:", isLoading);
+  console.log("🚀 ~ ByCategory ~ error:", error);
 
   const imagesMap: Record<string, StaticImageData> = {
     electronics,
@@ -108,6 +104,50 @@ const ByCategory = () => {
     return <AtomLoader />;
   }
 
+  if (error) {
+    return (
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12 flex items-center justify-between">
+          <span className="text-2xl font-bold">Shop by category</span>
+          <Link href="/categories">
+            <MainButton text="View All" />
+          </Link>
+        </div>
+        <div className="col-span-12 text-center py-8">
+          <p className="text-red-600">Failed to load categories</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!allCategories || allCategories.length === 0) {
+    return (
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12 flex items-center justify-between">
+          <span className="text-2xl font-bold">Shop by category</span>
+          <Link href="/categories">
+            <MainButton text="View All" />
+          </Link>
+        </div>
+        <div className="col-span-12 text-center py-8">
+          <p className="text-gray-600">
+            No categories available at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Ensure we always have 6 cards
+  const categoriesToDisplay = allCategories
+    ? allCategories.slice(0, 6).reverse()
+    : Array(6).fill(null);
+
+  // console.log({ categoriesToDisplay });
+
   return (
     <>
       <div className="grid grid-cols-12 gap-4">
@@ -117,42 +157,80 @@ const ByCategory = () => {
             <MainButton text="View All" />
           </Link>
         </div>
-        {allCategories && (
-          <>
-            {allCategories
-              .slice(0, 6).reverse()
-              .map((category: Category, index: number) => {
-                const imageKey = category.category.name
-                  .toLowerCase()
-                  .replace(/\s+/g, "_");
-                const categoryImage = imagesMap[imageKey];
-                const categoryLink = `/categories/one?category=${encodeURIComponent(
-                  category.category.name
-                )}`;
+        {categoriesToDisplay.map((category: Category | null, index: number) => {
+          if (category) {
+            const imageKey = category.name.toLowerCase().replace(/\s+/g, "_");
+            const categoryImage = imagesMap[imageKey];
+            const categoryLink = `/categories/${encodeURIComponent(
+              category.name
+            )}`;
 
-                // Render categories with images first
-                if (categoryImage) {
-                  return (
-                    <CategoryCard
-                      key={index}
-                      link={categoryLink}
-                      image={categoryImage}
-                      title={category.category.name}
-                    />
-                  );
-                }
-                return null; // Skip rendering for categories without images
-              })}
-          </>
-        )}
-        {/* {categories.map((category, index) => (
-          <CategoryCard
-            key={index}
-            link={category.link}
-            image={category.image}
-            title={category.title}
-          />
-        ))} */}
+            // Render categories with images first
+            if (categoryImage) {
+              return (
+                <CategoryCard
+                  key={index}
+                  link={categoryLink}
+                  image={categoryImage}
+                  title={category.name}
+                />
+              );
+            } else {
+              const initials = getInitials(category.name);
+              const bgColor = getRandomColor();
+
+              return (
+                <Link
+                  key={index}
+                  className="relative col-span-6 md:col-span-4 lg:col-span-2 h-48 overflow-hidden rounded-lg group cursor-pointer"
+                  href={categoryLink}
+                  target="_blank"
+                >
+                  <div
+                    className="object-cover transition-transform duration-300 relative col-span-6 h-48 overflow-hidden rounded-lg group cursor-pointer flex items-center justify-center md:col-span-4 lg:col-span-2 group-hover:scale-110"
+                    style={{
+                      backgroundColor: bgColor,
+                    }}
+                  >
+                    <span className="text-white text-4xl text-center font-bold">
+                      {initials}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-0 w-full p-4 text-center bg-gradient-to-t from-black/50 to-transparent">
+                    <span className="text-white font-medium capitalize">
+                      {category.name}
+                    </span>
+                  </div>
+                </Link>
+              );
+            }
+          } else {
+            // Handle case where category is null
+            const initials = "N/A"; // Default initials for null categories
+            const bgColor = getRandomColor();
+
+            return (
+              <div
+                key={index}
+                className="relative col-span-6 md:col-span-4 lg:col-span-2 h-48 overflow-hidden rounded-lg group cursor-pointer"
+                style={{
+                  backgroundColor: bgColor,
+                }}
+              >
+                <div className="flex items-center justify-center h-full">
+                  <span className="text-white text-4xl font-bold">
+                    {initials}
+                  </span>
+                </div>
+                <div className="absolute bottom-0 w-full p-4 text-center bg-gradient-to-t from-black/50 to-transparent">
+                  <span className="text-white font-medium capitalize">
+                    No Category
+                  </span>
+                </div>
+              </div>
+            );
+          }
+        })}
       </div>
     </>
   );

@@ -35,14 +35,22 @@ const ProductsPage = () => {
   const [priceRange, setPriceRange] = useState(500);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  const { data: products, isLoading } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["featuredItems"],
     queryFn: getFeaturedItems,
   });
 
+  console.log("🚀 ~ FeaturedPage ~ products:", products);
+  console.log("🚀 ~ FeaturedPage ~ isLoading:", isLoading);
+  console.log("🚀 ~ FeaturedPage ~ error:", error);
+
   // Find highest price and set initial products
   useEffect(() => {
-    if (products) {
+    if (products && products.items) {
       const highestPrice = Math.max(
         ...products.items.map(
           (product: Product) => product.discountPrice || product.price
@@ -51,13 +59,13 @@ const ProductsPage = () => {
       const roundedMaxPrice = Math.ceil(highestPrice / 1000);
       setMaxPrice(roundedMaxPrice);
       setPriceRange(roundedMaxPrice);
-      setFilteredProducts(products);
+      setFilteredProducts(products.items);
     }
   }, [products]);
 
   // Handle filtering when price range, category, or tag changes
   useEffect(() => {
-    if (products) {
+    if (products && products.items) {
       let filtered = [...products.items];
 
       // Apply price filter
@@ -110,6 +118,83 @@ const ProductsPage = () => {
     return <AtomLoader />;
   }
 
+  if (error) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Featured Products</span>
+        </nav>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Error Loading Featured Products
+          </h2>
+          <p className="text-gray-600">
+            Failed to load featured products. Please try again later.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!products || !products.items || products.items.length === 0) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Featured Products</span>
+        </nav>
+        <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+          Featured Products
+        </h1>
+        <div className="text-center py-12">
+          <p className="text-gray-600">
+            No featured products available at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (filteredProducts.length === 0 && !isLoading) {
+    return (
+      <div className="flex flex-col gap-4 sm:gap-8">
+        <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <Link href="/" className="hover:text-brand-main transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          <span className="text-brand-main">Featured Products</span>
+        </nav>
+        <h1 className="text-3xl sm:text-4xl font-bold capitalize">
+          {products.tagName || "Featured Products"}
+        </h1>
+        <div className="text-center py-12">
+          <p className="text-gray-600">
+            No products found matching your criteria.
+          </p>
+          <button
+            onClick={() => {
+              setPriceRange(maxPrice);
+            }}
+            className="mt-4 px-6 py-2 bg-brand-main text-white rounded-md hover:bg-brand-main/80 transition-colors"
+          >
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 sm:gap-8">
       <nav className="flex items-center gap-2 text-sm text-gray-600">
@@ -121,7 +206,7 @@ const ProductsPage = () => {
       </nav>
 
       <h1 className="text-3xl sm:text-4xl font-bold capitalize">
-        {products.tagName || "All Products"}
+        {products.tagName || "Featured Products"}
       </h1>
 
       <div className="pt-4 border-t flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm font-semibold my-4 sm:my-8 gap-4">

@@ -13,7 +13,7 @@ const CategoryCard = ({ link, image, title }: any) => {
       >
         <Image
           src={image}
-          alt={title}
+          alt={title || "Category Image"}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-110"
         />

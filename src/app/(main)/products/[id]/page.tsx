@@ -1,17 +1,23 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, use } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
 import { fetchProductById } from "@/api/products.api";
 import AtomLoader from "@/components/loader/AtomLoader";
 import Link from "next/link";
 import Image from "next/image";
 import { IoStar } from "react-icons/io5"; // Importing star icon for rating representation
+import defaultImage from "@/assets/imgs/landing/jumbotron/bg.jpg";
 
-const OneProduct = () => {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+interface OneProductProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+const OneProduct = ({ params }: OneProductProps) => {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
   const { data: product, isLoading } = useQuery({
     queryKey: ["fetchProductById", id],
     queryFn: fetchProductById,
@@ -81,7 +87,7 @@ const OneProduct = () => {
         <div className="flex flex-col gap-4">
           <div className="relative h-[400px] w-full border rounded-lg overflow-hidden">
             <Image
-              src={product?.images?.[0] || ""}
+              src={product?.images?.[0] || defaultImage}
               alt={product?.name || "Product Image"}
               fill
               className="object-contain"
@@ -96,7 +102,7 @@ const OneProduct = () => {
                 }`}
               >
                 <Image
-                  src={img}
+                  src={img || defaultImage}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"
@@ -123,13 +129,15 @@ const OneProduct = () => {
           </div>
           <div className="flex items-center gap-2">
             <Image
-              src={storeLogo}
-              alt={product?.name || "Store Logo"}
-              width={64}
-              height={64}
-              className="glass-fx absolute top-4 right-4 object-cover z-10 shadow-md"
+              src={storeLogo || defaultImage}
+              // alt={product?.name || "Store Logo"}
+              alt={"logo"}
+              width={46}
+              height={46}
+              className="glass-fx"
+              // className="glass-fx absolute top-4 right-4 object-cover z-10 shadow-md"
             />
-            <span className="text-sm text-gray-600">{product?.storeName}</span>
+            {/* <span className="text-sm text-gray-600">{product?.storeName}</span> */}
             <div className="flex items-center">
               {Array.from({ length: 5 }, (_, index) => {
                 if (index < rating) {
@@ -230,10 +238,10 @@ const OneProduct = () => {
   );
 };
 
-export default function Page() {
+export default function Page({ params }: OneProductProps) {
   return (
     <Suspense fallback={<AtomLoader />}>
-      <OneProduct />
+      <OneProduct params={params} />
     </Suspense>
   );
 }

@@ -47,7 +47,7 @@ const DealCard = ({
 
   return (
     <Link
-      href={`/products/one?id=${id}`}
+      href={`/products/${id}`}
       className={twMerge(
         "relative col-span-6 overflow-hidden rounded-lg group cursor-pointer lg:col-span-3",
         className
@@ -58,7 +58,7 @@ const DealCard = ({
         {logo ? (
           <Image
             src={storeLogo}
-            alt={store || "Store Logo"}
+            alt={store || "Store Logo."}
             width={64}
             height={64}
             // className="glass-fx absolute top-4 right-4 object-cover z-10 shadow-md"
