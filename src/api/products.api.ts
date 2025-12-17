@@ -102,7 +102,7 @@ export const getProductsByTag = async (tagId: string) => {
 // All featured items
 export const getFeaturedItems = async () => {
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/tags/featured/all`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/tag/featured`,
     {
       headers: {
         "content-type": "application/json",
@@ -150,7 +150,7 @@ export const getProductsByBrand = async ({ queryKey }: any) => {
   const [_, id] = queryKey;
   console.log(_);
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/brands/products-by-brand?brandId=${id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/brand/${id}/products`,
     {
       headers: {
         "content-type": "application/json",
