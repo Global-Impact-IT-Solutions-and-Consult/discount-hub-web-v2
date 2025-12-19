@@ -5,10 +5,11 @@ const API_BASE_URL =
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const path = params.path.join("/");
+    const { path: pathArray } = await context.params;
+    const path = pathArray.join("/");
     const searchParams = request.nextUrl.searchParams.toString();
     const url = `${API_BASE_URL}/${path}${searchParams ? `?${searchParams}` : ""}`;
 
@@ -46,10 +47,11 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const path = params.path.join("/");
+    const { path: pathArray } = await context.params;
+    const path = pathArray.join("/");
     const url = `${API_BASE_URL}/${path}`;
     const body = await request.json();
 
