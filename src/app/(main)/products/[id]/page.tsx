@@ -118,12 +118,12 @@ const OneProduct = ({ params }: OneProductProps) => {
           <div className="flex items-center gap-4">
             <span className="text-xl font-bold text-brand-main">
               {product?.discountPrice
-                ? `₦${product?.discountPrice.toLocaleString()}`
-                : `₦${product?.price.toLocaleString()}`}
+                ? `₦${product?.discountPrice?.toLocaleString()}`
+                : `₦${product?.price?.toLocaleString()}`}
             </span>
             {product?.discountPrice && (
               <span className="text-gray-500 line-through">
-                ₦{product?.price.toLocaleString()}
+                ₦{product?.price?.toLocaleString()}
               </span>
             )}
           </div>
@@ -159,7 +159,7 @@ const OneProduct = ({ params }: OneProductProps) => {
                 }
               })}
               <span className="ml-2 text-sm text-gray-600">
-                ({product?.numberOfRatings.toLocaleString()} ratings)
+                ({product?.numberOfRatings?.toLocaleString()} ratings)
               </span>
             </div>
           </div>
