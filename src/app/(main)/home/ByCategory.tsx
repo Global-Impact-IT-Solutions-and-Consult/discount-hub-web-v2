@@ -72,9 +72,9 @@ const ByCategory = () => {
     queryFn: fetchCategories,
   });
 
-  console.log("🚀 ~ ByCategory ~ allCategories:", allCategories);
-  console.log("🚀 ~ ByCategory ~ isLoading:", isLoading);
-  console.log("🚀 ~ ByCategory ~ error:", error);
+  // console.log("🚀 ~ ByCategory ~ allCategories:", allCategories);
+  // console.log("🚀 ~ ByCategory ~ isLoading:", isLoading);
+  // console.log("🚀 ~ ByCategory ~ error:", error);
 
   const imagesMap: Record<string, StaticImageData> = {
     electronics,
