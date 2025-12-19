@@ -50,23 +50,23 @@ const ProductsPage = () => {
 
   // Find highest price and set initial products
   useEffect(() => {
-    if (products && products.items) {
+    if (products) {
       const highestPrice = Math.max(
-        ...products.items.map(
+        ...products.map(
           (product: Product) => product.discountPrice || product.price
         )
       );
       const roundedMaxPrice = Math.ceil(highestPrice / 1000);
       setMaxPrice(roundedMaxPrice);
       setPriceRange(roundedMaxPrice);
-      setFilteredProducts(products.items);
+      setFilteredProducts(products);
     }
   }, [products]);
 
   // Handle filtering when price range, category, or tag changes
   useEffect(() => {
-    if (products && products.items) {
-      let filtered = [...products.items];
+    if (products) {
+      let filtered = [...products];
 
       // Apply price filter
       filtered = filtered.filter(
@@ -143,7 +143,7 @@ const ProductsPage = () => {
     );
   }
 
-  if (!products || !products.items || products.items.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <div className="flex flex-col gap-4 sm:gap-8">
         <nav className="flex items-center gap-2 text-sm text-gray-600">
@@ -294,7 +294,7 @@ const ProductsPage = () => {
       <div className="grid grid-cols-12 gap-4">
         {currentProducts.map((product: Product, index: number) => (
           <div
-            key={`product-${product.id}-${index}`}
+            key={`product-${product._id}-${index}`}
             className="col-span-6 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
           >
             <DealCard

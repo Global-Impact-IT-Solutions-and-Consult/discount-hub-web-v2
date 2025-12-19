@@ -102,14 +102,15 @@ export const getProductsByTag = async (tagId: string) => {
 // All featured items
 export const getFeaturedItems = async () => {
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/tag/featured`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/product/featured`,
     {
       headers: {
         "content-type": "application/json",
       },
     }
   );
-  return response.data?.data?.[0] || null;
+  console.log("🚀 ~ getFeaturedItems ~ response:", response.data.data);
+  return response?.data?.data || [];
 };
 
 export const getFeaturedCategories = async () => {
