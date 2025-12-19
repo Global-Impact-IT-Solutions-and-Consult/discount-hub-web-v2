@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from "axios";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://api.discountshub.co";
-
-console.log("🚀 ~ API BASE_URL:", BASE_URL);
+import { BASE_URL } from "@/utils/api";
 
 export const fetchProducts = async () => {
   console.log("🚀 ~ fetchProducts ~ URL:", `${BASE_URL}/product`);
@@ -45,7 +41,7 @@ export const fetchCategories = async () => {
 
 export const searchProducts = async (term: string) => {
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/search/v1?term=${term}`,
+    `${BASE_URL}/product/search/v1?term=${term}`,
     {
       headers: {
         "content-type": "application/json",
@@ -60,21 +56,18 @@ export const searchProducts = async (term: string) => {
 // **************** //
 // All tags
 export const fetchTags = async () => {
-  const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/tags/all`,
-    {
-      headers: {
-        "content-type": "application/json",
-      },
-    }
-  );
+  const response = await axios.get(`${BASE_URL}/product/tags/all`, {
+    headers: {
+      "content-type": "application/json",
+    },
+  });
   return response.data.data;
 };
 
 // Tag by Id
 export const getTagById = async (tagId: string) => {
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/tags/one?tagId=${tagId}`,
+    `${BASE_URL}/product/tags/one?tagId=${tagId}`,
     {
       headers: {
         "content-type": "application/json",
@@ -88,7 +81,7 @@ export const getTagById = async (tagId: string) => {
 export const getProductsByTag = async (tagId: string) => {
   console.log("tagId: ", tagId);
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/tags/by-tag?tagId=${tagId}`,
+    `${BASE_URL}/product/tags/by-tag?tagId=${tagId}`,
     {
       headers: {
         "content-type": "application/json",
@@ -101,26 +94,20 @@ export const getProductsByTag = async (tagId: string) => {
 
 // All featured items
 export const getFeaturedItems = async () => {
-  const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/tags/featured/all`,
-    {
-      headers: {
-        "content-type": "application/json",
-      },
-    }
-  );
+  const response = await axios.get(`${BASE_URL}/product/tags/featured/all`, {
+    headers: {
+      "content-type": "application/json",
+    },
+  });
   return response.data?.data?.[0] || null;
 };
 
 export const getFeaturedCategories = async () => {
-  const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/category/featured`,
-    {
-      headers: {
-        "content-type": "application/json",
-      },
-    }
-  );
+  const response = await axios.get(`${BASE_URL}/category/featured`, {
+    headers: {
+      "content-type": "application/json",
+    },
+  });
   // console.log({ response });
   // return response.data?.data?.[0];
   return response.data?.data;
@@ -150,7 +137,7 @@ export const getProductsByBrand = async ({ queryKey }: any) => {
   const [_, id] = queryKey;
   console.log(_);
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/brands/products-by-brand?brandId=${id}`,
+    `${BASE_URL}/product/brands/products-by-brand?brandId=${id}`,
     {
       headers: {
         "content-type": "application/json",
@@ -183,7 +170,7 @@ export const getProductsByBrand = async ({ queryKey }: any) => {
 export const subscribeToNewsletter = async ({ email }: { email: string }) => {
   try {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/user/newsletter`,
+      `${BASE_URL}/user/newsletter`,
       { email },
       {
         headers: {
@@ -220,7 +207,7 @@ interface AIChat {
 export const createAIChat = async () => {
   try {
     // console.log("Creating new chat for user:", userId);
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
+    const url = `${BASE_URL}/chat`;
     console.log("API URL:", url);
 
     const response = await axios.post(
@@ -249,14 +236,11 @@ export const createAIChat = async () => {
 export const getAIChat = async ({ chatId }: { chatId: string }) => {
   try {
     console.log("getAIChat: ", chatId);
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.get(`${BASE_URL}/chat/${chatId}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     console.log("getAIChat response: ", response.data);
     return response.data.messages;
   } catch (error) {
@@ -279,7 +263,7 @@ export const sendAIChatMessage = async ({
       chatId,
       message: message.substring(0, 50) + "...",
     });
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}/message`;
+    const url = `${BASE_URL}/chat/${chatId}/message`;
     // const url = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/68a71d741cb10c7f47f91715/message`;
     // console.log("API URL:", url);
 

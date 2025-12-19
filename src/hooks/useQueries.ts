@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { BASE_URL } from "@/utils/api";
 
 export const useProducts = () => {
   return useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/product`,
+      const response = await axios.get(`${BASE_URL}/product`,
         {
           headers: {
             "content-type": "application/json",
@@ -23,7 +23,7 @@ export const useCategories = () => {
     queryKey: ["categories"],
     queryFn: async () => {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/product/categories/product-count`,
+        `${BASE_URL}/product/categories/product-count`,
         {
           headers: {
             "content-type": "application/json",

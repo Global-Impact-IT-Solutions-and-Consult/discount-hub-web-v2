@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { error } from "@/helpers/Alert";
+import { BASE_URL } from "@/utils/api";
 
 type ApiError = Error & {
   response?: {
@@ -44,14 +45,11 @@ export const useStore = create<Store>((set) => ({
   setAllCategories: (categories) => set({ allCategories: categories }),
   fetchProducts: async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/product`,
-        {
-          headers: {
-            "content-type": "application/json",
-          },
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/product`, {
+        headers: {
+          "content-type": "application/json",
+        },
+      });
       if (response.status === 200) {
         set({ allProducts: response.data.data });
       }
@@ -63,7 +61,7 @@ export const useStore = create<Store>((set) => ({
   fetchCategories: async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/product/categories/product-count`,
+        `${BASE_URL}/product/categories/product-count`,
         {
           headers: {
             "content-type": "application/json",
