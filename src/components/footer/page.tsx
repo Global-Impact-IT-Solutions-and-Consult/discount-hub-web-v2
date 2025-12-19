@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchCategories } from "@/api/products.api";
 
 
@@ -12,11 +12,7 @@ interface Category {
 }
 
 const Footer = () => {
-  const {
-    data: allCategories,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: allCategories } = useQuery({
     queryKey: ["fetchCategories"],
     queryFn: fetchCategories,
   });
