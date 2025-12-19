@@ -94,12 +94,16 @@ export const getProductsByTag = async (tagId: string) => {
 
 // All featured items
 export const getFeaturedItems = async () => {
-  const response = await axios.get(`${BASE_URL}/product/tags/featured/all`, {
-    headers: {
-      "content-type": "application/json",
-    },
-  });
-  return response.data?.data?.[0] || null;
+  const response = await axios.get(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/product/featured`,
+    {
+      headers: {
+        "content-type": "application/json",
+      },
+    }
+  );
+  console.log("🚀 ~ getFeaturedItems ~ response:", response.data.data);
+  return response?.data?.data || [];
 };
 
 export const getFeaturedCategories = async () => {
@@ -137,7 +141,7 @@ export const getProductsByBrand = async ({ queryKey }: any) => {
   const [_, id] = queryKey;
   console.log(_);
   const response = await axios.get(
-    `${BASE_URL}/product/brands/products-by-brand?brandId=${id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/brand/${id}/products`,
     {
       headers: {
         "content-type": "application/json",

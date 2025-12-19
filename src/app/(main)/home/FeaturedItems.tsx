@@ -21,11 +21,13 @@ const FeaturedItems = () => {
     queryFn: getFeaturedItems,
   });
 
-  console.log("🚀 ~ FeaturedItems ~ data:", data);
-  console.log("🚀 ~ FeaturedItems ~ isLoading:", isLoading);
-  console.log("🚀 ~ FeaturedItems ~ error:", error);
+  // console.log("🚀 ~ FeaturedItems ~ data:", data);
+  // console.log("🚀 ~ FeaturedItems ~ isLoading:", isLoading);
+  // console.log("🚀 ~ FeaturedItems ~ error:", error);
 
-  const featuredProducts = data?.items?.slice(0, 4) || [];
+  console.log("🚀 ~ FeaturedItems ~ data:", data);
+
+  const featuredProducts = data?.slice(0, 4) || [];
 
   const prevSlide = () => {
     setDirection(-1);
@@ -75,7 +77,7 @@ const FeaturedItems = () => {
     );
   }
 
-  if (!data || !data.items || data.items.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="w-full">
         <div className="col-span-12 flex items-center justify-between my-8">
@@ -249,7 +251,7 @@ export default FeaturedItems;
 //         </div>
 //         {featuredProducts?.map((product: Product, index: number) => (
 //           <div
-//             key={`product-${product.id}-${index}`}
+//             key={`product-${product._id}-${index}`}
 //             className="col-span-6 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
 //           >
 //             <DealCard

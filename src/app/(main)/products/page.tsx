@@ -476,7 +476,7 @@ const ProductsPage = () => {
       <div className="grid grid-cols-12 gap-4">
         {currentProducts.map((product: Product, index: number) => (
           <div
-            key={`product-${product.id}-${index}`}
+            key={`product-${product._id}-${index}`}
             className="col-span-6 my-8 sm:col-span-6 lg:col-span-4 xl:col-span-3"
           >
             <DealCard

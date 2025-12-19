@@ -59,7 +59,7 @@ const Jumbotron = () => {
 
   // Log only in development
   if (process.env.NODE_ENV === "development") {
-    console.log("Featured Categories:", categories);
+    // console.log("Featured Categories:", categories);
   }
 
   const [timeLeft, setTimeLeft] = useState({
@@ -314,7 +314,7 @@ const Jumbotron = () => {
           {categories[currentSlide]?.products?.length > 0 ? (
             categories[currentSlide].products.map((product: Product) => (
               <div
-                key={`product-${product.id}`}
+                key={`product-${product._id}`}
                 className="col-span-6 sm:col-span-6 lg:col-span-4 xl:col-span-4"
               >
                 <DealCard
